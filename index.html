@@ -6,305 +6,82 @@
 <title>ITN Flashcards — Modules 1–7</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
-
   :root {
-    --bg: #0d0f1a;
-    --surface: #13162a;
-    --card-front: #181c35;
-    --card-back: #0f1f2e;
-    --border: rgba(255,255,255,0.07);
-    --text: #e8eaf6;
-    --muted: #7b80a8;
-    --accent: #00e5ff;
+    --bg:#0d0f1a;--surface:#13162a;--card-front:#181c35;--card-back:#0f1f2e;
+    --border:rgba(255,255,255,0.07);--text:#e8eaf6;--muted:#7b80a8;--accent:#00e5ff;
+    --m1:#ff6b6b;--m2:#ffa94d;--m3:#a9e34b;--m4:#4dabf7;--m5:#da77f2;--m6:#ff8cc8;--m7:#63e6be;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
-    /* Module colours */
-    --m1: #ff6b6b;
-    --m2: #ffa94d;
-    --m3: #a9e34b;
-    --m4: #4dabf7;
-    --m5: #da77f2;
-    --m6: #ff8cc8;
-    --m7: #63e6be;
-  }
+  /* ── NAVBAR ── */
+  nav{position:relative;z-index:10;display:flex;justify-content:center;align-items:center;gap:.5rem;padding:.75rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(13,15,26,.8);backdrop-filter:blur(10px)}
+  .nav-link{padding:.4rem 1.1rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:.78rem;text-decoration:none;transition:all .2s;letter-spacing:.04em}
+  .nav-link:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+  .nav-link.active{background:var(--accent);border-color:var(--accent);color:#000}
+  .nav-sep{color:var(--border);font-size:1rem;user-select:none}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  header{position:relative;z-index:2;padding:2rem 2rem 1.2rem;text-align:center;border-bottom:1px solid var(--border)}
+  header h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  header p{color:var(--muted);margin-top:.4rem;font-size:.95rem}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  .tabs{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;padding:1.5rem 1.5rem .5rem}
+  .tab{padding:.45rem 1.1rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s;letter-spacing:.04em}
+  .tab:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+  .tab.active{color:#000;font-weight:700}
 
-  /* Subtle grid background */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+  .progress-bar-wrap{position:relative;z-index:2;max-width:640px;margin:1.2rem auto .3rem;padding:0 1.5rem}
+  .progress-info{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:.4rem;font-family:'Space Mono',monospace}
+  .progress-track{height:3px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+  .progress-fill{height:100%;border-radius:99px;transition:width .4s ease}
 
-  /* ── HEADER ── */
-  header {
-    position: relative; z-index: 2;
-    padding: 2.5rem 2rem 1.5rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-  }
-  header h1 {
-    font-size: clamp(1.8rem, 4vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  header p { color: var(--muted); margin-top: .4rem; font-size: .95rem; }
+  .stage{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;padding:2rem 1.5rem;perspective:1200px}
+  .card-wrap{width:100%;max-width:640px;height:340px;cursor:pointer;position:relative}
+  .card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+  .card-wrap.flipped .card-inner{transform:rotateY(180deg)}
+  .card-face{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;padding:2rem 2.2rem;border:1.5px solid var(--border);overflow:hidden}
+  .card-front{background:var(--card-front);justify-content:center;align-items:center;text-align:center}
+  .card-back{background:var(--card-back);transform:rotateY(180deg);justify-content:center;align-items:flex-start;text-align:left}
+  .card-face::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0}
+  .card-label{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1rem;opacity:.5}
+  .card-q{font-size:clamp(1.05rem,2.5vw,1.3rem);font-weight:700;line-height:1.45;color:#fff}
+  .card-hint{margin-top:1.2rem;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.06em}
+  .card-a{font-size:clamp(.92rem,2vw,1.05rem);line-height:1.65;color:#d4e8ff}
+  .card-a strong{color:#fff}
+  .card-a .tag{display:inline-block;background:rgba(255,255,255,.08);border-radius:4px;padding:.1rem .4rem;font-family:'Space Mono',monospace;font-size:.8em;margin:.1rem .1rem;color:var(--accent)}
 
-  /* ── MODULE TABS ── */
-  .tabs {
-    position: relative; z-index: 2;
-    display: flex; flex-wrap: wrap; gap: .5rem;
-    justify-content: center;
-    padding: 1.5rem 1.5rem .5rem;
-  }
-  .tab {
-    padding: .45rem 1.1rem;
-    border-radius: 999px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    font-family: 'Syne', sans-serif;
-    font-weight: 600;
-    font-size: .82rem;
-    cursor: pointer;
-    transition: all .2s;
-    letter-spacing: .04em;
-  }
-  .tab:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
-  .tab.active { color: #000; font-weight: 700; }
+  .controls{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;gap:1rem;padding:.5rem 1.5rem 2rem}
+  .btn{padding:.6rem 1.6rem;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .18s;letter-spacing:.03em}
+  .btn:hover:not(:disabled){background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25)}
+  .btn:disabled{opacity:.3;cursor:default}
+  .card-count{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--muted);min-width:60px;text-align:center}
 
-  /* ── PROGRESS ── */
-  .progress-bar-wrap {
-    position: relative; z-index: 2;
-    max-width: 640px; margin: 1.2rem auto .3rem;
-    padding: 0 1.5rem;
-  }
-  .progress-info {
-    display: flex; justify-content: space-between;
-    font-size: .78rem; color: var(--muted);
-    margin-bottom: .4rem;
-    font-family: 'Space Mono', monospace;
-  }
-  .progress-track {
-    height: 3px;
-    background: rgba(255,255,255,.08);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width .4s ease;
-  }
+  .shuffle-row{position:relative;z-index:2;display:flex;justify-content:center;padding-bottom:1.5rem;gap:.7rem}
+  .btn.small{padding:.38rem 1rem;font-size:.75rem}
 
-  /* ── CARD STAGE ── */
-  .stage {
-    position: relative; z-index: 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem 1.5rem;
-    perspective: 1200px;
-  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .card-wrap{animation:cardIn .3s ease}
 
-  .card-wrap {
-    width: 100%;
-    max-width: 640px;
-    height: 340px;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .card-inner {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform .55s cubic-bezier(.4,0,.2,1);
-  }
-  .card-wrap.flipped .card-inner { transform: rotateY(180deg); }
-
-  .card-face {
-    position: absolute; inset: 0;
-    border-radius: 20px;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem 2.2rem;
-    border: 1.5px solid var(--border);
-    overflow: hidden;
-  }
-
-  .card-front {
-    background: var(--card-front);
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .card-back {
-    background: var(--card-back);
-    transform: rotateY(180deg);
-    justify-content: center;
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  /* Glow accent stripe */
-  .card-face::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: 20px 20px 0 0;
-  }
-
-  .card-label {
-    font-family: 'Space Mono', monospace;
-    font-size: .68rem;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    opacity: .5;
-  }
-
-  .card-q {
-    font-size: clamp(1.05rem, 2.5vw, 1.3rem);
-    font-weight: 700;
-    line-height: 1.45;
-    color: #fff;
-  }
-
-  .card-hint {
-    margin-top: 1.2rem;
-    font-family: 'Space Mono', monospace;
-    font-size: .72rem;
-    color: var(--muted);
-    letter-spacing: .06em;
-  }
-
-  .card-a {
-    font-size: clamp(.92rem, 2vw, 1.05rem);
-    line-height: 1.65;
-    color: #d4e8ff;
-  }
-  .card-a strong { color: #fff; }
-  .card-a .tag {
-    display: inline-block;
-    background: rgba(255,255,255,.08);
-    border-radius: 4px;
-    padding: .1rem .4rem;
-    font-family: 'Space Mono', monospace;
-    font-size: .8em;
-    margin: .1rem .1rem;
-    color: var(--accent);
-  }
-
-  /* ── CONTROLS ── */
-  .controls {
-    position: relative; z-index: 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    padding: .5rem 1.5rem 2rem;
-  }
-  .btn {
-    padding: .6rem 1.6rem;
-    border-radius: 999px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: .88rem;
-    cursor: pointer;
-    transition: all .18s;
-    letter-spacing: .03em;
-  }
-  .btn:hover:not(:disabled) {
-    background: rgba(255,255,255,.08);
-    border-color: rgba(255,255,255,.25);
-  }
-  .btn:disabled { opacity: .3; cursor: default; }
-  .btn.primary {
-    background: rgba(255,255,255,.07);
-    border-color: rgba(255,255,255,.2);
-  }
-  .btn.flip-btn {
-    padding: .6rem 2rem;
-  }
-  .card-count {
-    font-family: 'Space Mono', monospace;
-    font-size: .8rem;
-    color: var(--muted);
-    min-width: 60px;
-    text-align: center;
-  }
-
-  /* ── SHUFFLE ── */
-  .shuffle-row {
-    position: relative; z-index: 2;
-    display: flex; justify-content: center;
-    padding-bottom: 1.5rem; gap: .7rem;
-  }
-  .btn.small {
-    padding: .38rem 1rem;
-    font-size: .75rem;
-  }
-
-  /* Card entry animation */
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(16px) scale(.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .card-wrap { animation: cardIn .3s ease; }
-
-  /* Module colour application */
-  .m1 .card-face::before { background: var(--m1); }
-  .m2 .card-face::before { background: var(--m2); }
-  .m3 .card-face::before { background: var(--m3); }
-  .m4 .card-face::before { background: var(--m4); }
-  .m5 .card-face::before { background: var(--m5); }
-  .m6 .card-face::before { background: var(--m6); }
-  .m7 .card-face::before { background: var(--m7); }
-
-  .m1 .card-label { color: var(--m1); opacity: 1; }
-  .m2 .card-label { color: var(--m2); opacity: 1; }
-  .m3 .card-label { color: var(--m3); opacity: 1; }
-  .m4 .card-label { color: var(--m4); opacity: 1; }
-  .m5 .card-label { color: var(--m5); opacity: 1; }
-  .m6 .card-label { color: var(--m6); opacity: 1; }
-  .m7 .card-label { color: var(--m7); opacity: 1; }
-
-  /* All-module banner label */
-  .all .card-face::before { background: linear-gradient(90deg, var(--m1),var(--m2),var(--m3),var(--m4),var(--m5),var(--m6),var(--m7)); }
-
-  /* Responsive */
-  @media (max-width: 500px) {
-    .card-wrap { height: 300px; }
-    .card-face { padding: 1.4rem 1.4rem; }
-  }
+  .m1 .card-face::before{background:var(--m1)} .m2 .card-face::before{background:var(--m2)}
+  .m3 .card-face::before{background:var(--m3)} .m4 .card-face::before{background:var(--m4)}
+  .m5 .card-face::before{background:var(--m5)} .m6 .card-face::before{background:var(--m6)}
+  .m7 .card-face::before{background:var(--m7)}
+  .m1 .card-label{color:var(--m1);opacity:1} .m2 .card-label{color:var(--m2);opacity:1}
+  .m3 .card-label{color:var(--m3);opacity:1} .m4 .card-label{color:var(--m4);opacity:1}
+  .m5 .card-label{color:var(--m5);opacity:1} .m6 .card-label{color:var(--m6);opacity:1}
+  .m7 .card-label{color:var(--m7);opacity:1}
+  .all .card-face::before{background:linear-gradient(90deg,var(--m1),var(--m2),var(--m3),var(--m4),var(--m5),var(--m6),var(--m7))}
+  @media(max-width:500px){.card-wrap{height:300px}.card-face{padding:1.4rem}}
 </style>
 </head>
 <body>
+
+<nav>
+  <a class="nav-link active" href="ITN_Flashcards_Basic.html">📚 Basic Flashcards</a>
+  <span class="nav-sep">|</span>
+  <a class="nav-link" href="ITN_Flashcards_Advanced.html">🔥 Advanced Flashcards</a>
+</nav>
 
 <header>
   <h1>ITN Flashcards</h1>
@@ -323,7 +100,7 @@
 
 <div class="stage">
   <div class="card-wrap" id="card" onclick="flipCard()">
-    <div class="card-inner" id="card-inner">
+    <div class="card-inner">
       <div class="card-face card-front">
         <div class="card-label" id="card-label"></div>
         <div class="card-q" id="card-q"></div>
@@ -349,360 +126,167 @@
 </div>
 
 <script>
-// ── ALL FLASHCARDS ──────────────────────────────────────────────────────────
 const modules = [
-  {
-    id: 'all', label: 'All Modules', color: 'all', accent: '#00e5ff',
-    cards: [] // filled dynamically
-  },
-  {
-    id: 'm1', label: 'M1 – Networking Today', color: 'm1', accent: '#ff6b6b',
-    cards: [
-      { q: "What are the three elements required for any communication?",
-        a: "<strong>Source (sender)</strong>, <strong>Destination (receiver)</strong>, and <strong>Channel (media)</strong> — all three must exist for communication to occur." },
-      { q: "What is the difference between a server and a client?",
-        a: "A <strong>server</strong> provides information or services (e.g. web pages, email). A <strong>client</strong> requests and uses those services (e.g. a browser requesting a web page)." },
-      { q: "What are two advantages and two disadvantages of a P2P network?",
-        a: "<strong>Advantages:</strong> easy to set up, low cost. <strong>Disadvantages:</strong> no centralised administration, not secure, not scalable, slower performance." },
-      { q: "What is the difference between a LAN and a WAN?",
-        a: "<strong>LAN</strong> covers a small area (office/home), managed by one org, high speed. <strong>WAN</strong> covers large areas (cities/countries), managed by service providers, typically slower links between LANs." },
-      { q: "What is the internet and who owns it?",
-        a: "A <strong>worldwide collection of interconnected LANs and WANs</strong>. It is <strong>not owned</strong> by any single individual or group — bodies like IETF, ICANN, and IAB maintain its structure." },
-      { q: "What is the difference between an intranet and an extranet?",
-        a: "<strong>Intranet:</strong> private, internal network accessible only to org members. <strong>Extranet:</strong> extends limited access to authorised outside parties (e.g. suppliers, partners)." },
-      { q: "What are the four characteristics of a reliable network?",
-        a: "<span class='tag'>Fault Tolerance</span> <span class='tag'>Scalability</span> <span class='tag'>QoS</span> <span class='tag'>Security</span>" },
-      { q: "What is Fault Tolerance in a network?",
-        a: "Limiting the impact of a failure by providing <strong>multiple redundant paths</strong>. Packet-switched networks achieve this by allowing each packet to take a different route." },
-      { q: "What is Quality of Service (QoS)?",
-        a: "The mechanism that <strong>prioritises certain types of traffic</strong> (e.g. VoIP calls over file downloads) to ensure reliable, consistent delivery even during network congestion." },
-      { q: "What are the three goals of network security (CIA)?",
-        a: "<strong>Confidentiality</strong> — only intended recipients read the data. <strong>Integrity</strong> — data not altered in transit. <strong>Availability</strong> — authorised users can always access data." },
-      { q: "What does BYOD stand for and what does it mean?",
-        a: "<strong>Bring Your Own Device</strong> — employees/students use their own personal devices (laptops, phones, tablets) to access company or school networks and resources." },
-      { q: "What are the four types of cloud computing?",
-        a: "<span class='tag'>Public</span> open to all, pay-per-use &nbsp; <span class='tag'>Private</span> single org &nbsp; <span class='tag'>Hybrid</span> mix of both &nbsp; <span class='tag'>Custom</span> industry-specific" },
-      { q: "What is a converged network?",
-        a: "A single network infrastructure that carries <strong>data, voice, and video</strong> over one set of rules and standards — unlike traditional separate networks for each type." },
-      { q: "Name four external security threats to a network.",
-        a: "Viruses/worms/Trojans, spyware/adware, denial-of-service attacks, identity theft, zero-day attacks, data interception." },
-      { q: "What additional security tools do large corporate networks use beyond a home network?",
-        a: "<span class='tag'>Dedicated firewall</span> <span class='tag'>ACL</span> <span class='tag'>IPS</span> <span class='tag'>VPN</span>" },
-    ]
-  },
-  {
-    id: 'm2', label: 'M2 – Switch Config', color: 'm2', accent: '#ffa94d',
-    cards: [
-      { q: "What are the three parts of an operating system?",
-        a: "<strong>Shell</strong> — user interface (CLI or GUI). <strong>Kernel</strong> — core OS, manages hardware resources. <strong>Hardware</strong> — the physical components." },
-      { q: "What are the three methods to access a Cisco IOS device?",
-        a: "<strong>Console</strong> — physical cable, used for initial setup. <strong>SSH</strong> — encrypted remote access. <strong>Telnet</strong> — unencrypted remote access (not recommended)." },
-      { q: "What are the two main IOS EXEC modes and how do you identify each?",
-        a: "<strong>User EXEC</strong> — limited monitoring, prompt ends with <code>&gt;</code>. <strong>Privileged EXEC</strong> — full access to all commands, prompt ends with <code>#</code>." },
-      { q: "What command moves you from User EXEC to Privileged EXEC mode?",
-        a: "Type <strong><code>enable</code></strong> at the User EXEC prompt: <code>Switch&gt; enable</code> → <code>Switch#</code>" },
-      { q: "What command enters Global Configuration mode and what is its prompt?",
-        a: "<strong><code>configure terminal</code></strong> (or <code>conf t</code>). Prompt: <code>Switch(config)#</code>" },
-      { q: "What is the difference between 'exit' and 'end' in IOS?",
-        a: "<strong>exit</strong> — moves back ONE level in the hierarchy. <strong>end</strong> (or Ctrl+Z) — jumps directly back to Privileged EXEC from any subconfiguration mode." },
-      { q: "What are the two types of IOS help and how do you use them?",
-        a: "<strong>Context-sensitive (?)</strong> — type ? to see available commands at any point. <strong>Command syntax check</strong> — IOS shows a caret (^) pointing to the error when a command is mistyped." },
-      { q: "What command sets a switch hostname to 'SW-Floor-1'?",
-        a: "<code>SW(config)# <strong>hostname SW-Floor-1</strong></code>" },
-      { q: "What is the difference between 'enable password' and 'enable secret'?",
-        a: "<strong>enable password</strong> — stored in plaintext (weak). <strong>enable secret</strong> — stored as MD5 hash (strong). Always use <code>enable secret</code> — it overrides enable password." },
-      { q: "What does 'service password-encryption' do and what is its limitation?",
-        a: "Encrypts all plaintext passwords in the config using <strong>weak Type 7</strong> encryption — prevents casual viewing. Limitation: reversible with freely available tools. Not a substitute for enable secret." },
-      { q: "What is the difference between running-config and startup-config?",
-        a: "<strong>running-config</strong> — in RAM, active changes, <em>lost on power off</em>. <strong>startup-config</strong> — in NVRAM, loaded at boot, <em>survives power loss</em>." },
-      { q: "What command saves the running configuration permanently?",
-        a: "<code>Switch# <strong>copy running-config startup-config</strong></code>" },
-      { q: "What three commands configure an IP address on Switch VLAN 1?",
-        a: "<code>interface vlan 1</code> → <code>ip address [IP] [mask]</code> → <code>no shutdown</code>" },
-      { q: "What is a Switch Virtual Interface (SVI) and why configure an IP on it?",
-        a: "A <strong>virtual interface</strong> on a switch (not a physical port). Configuring an IP on the SVI allows <strong>remote management</strong> of the switch via SSH or Telnet." },
-      { q: "What is a duplex mismatch and how is it fixed?",
-        a: "One port is <strong>half-duplex</strong>, the other is <strong>full-duplex</strong>. Causes slow speeds, collisions, CRC errors. Fix: configure both ends to the same duplex (best practice: both full-duplex)." },
-    ]
-  },
-  {
-    id: 'm3', label: 'M3 – Protocols & Models', color: 'm3', accent: '#a9e34b',
-    cards: [
-      { q: "What are the five network protocol requirements?",
-        a: "<span class='tag'>Encoding</span> <span class='tag'>Formatting/Encapsulation</span> <span class='tag'>Size</span> <span class='tag'>Timing</span> <span class='tag'>Delivery Options</span>" },
-      { q: "What are the three message delivery options?",
-        a: "<strong>Unicast</strong> — one-to-one. <strong>Multicast</strong> — one-to-many (not all). <strong>Broadcast</strong> — one-to-all. Note: Broadcasts are <em>IPv4 only</em> — IPv6 uses multicast/anycast instead." },
-      { q: "What is message timing and what three things does it cover?",
-        a: "<strong>Flow Control</strong> — rate of transmission. <strong>Response Timeout</strong> — how long to wait for a reply. <strong>Access Method</strong> — when a device is allowed to send." },
-      { q: "What is a protocol suite and what is the most common one?",
-        a: "A <strong>group of inter-related protocols</strong> that work together to perform communication. The most common is <strong>TCP/IP</strong>, maintained by the IETF." },
-      { q: "What are the four layers of the TCP/IP model?",
-        a: "<span class='tag'>Application</span> <span class='tag'>Transport</span> <span class='tag'>Internet</span> <span class='tag'>Network Access</span>" },
-      { q: "What are the seven layers of the OSI model?",
-        a: "7-Application · 6-Presentation · 5-Session · 4-Transport · 3-Network · 2-Data Link · 1-Physical. <em>Mnemonic: All People Seem To Need Data Processing</em>" },
-      { q: "How do TCP/IP layers map to OSI layers?",
-        a: "<strong>Application</strong> = OSI 7+6+5. <strong>Transport</strong> = OSI 4. <strong>Internet</strong> = OSI 3. <strong>Network Access</strong> = OSI 2+1." },
-      { q: "What is data encapsulation and what are the five PDU names?",
-        a: "Adding headers/trailers at each layer as data moves <em>down</em> the stack: <span class='tag'>Data</span> → <span class='tag'>Segment</span> → <span class='tag'>Packet</span> → <span class='tag'>Frame</span> → <span class='tag'>Bits</span>" },
-      { q: "What is segmentation and what are its two benefits?",
-        a: "Breaking messages into smaller units. Benefits: <strong>Speed</strong> — avoids tying up the link. <strong>Efficiency</strong> — only failed segments need retransmitting, not the whole file." },
-      { q: "How does Layer 2 addressing differ from Layer 3 addressing across hops?",
-        a: "<strong>Layer 3 IP address</strong> — stays the same end-to-end (final destination). <strong>Layer 2 MAC address</strong> — changes at every hop (router rebuilds the frame for each link)." },
-      { q: "What is the default gateway and what happens without one?",
-        a: "The <strong>IP address of the local router</strong> — the 'door' to remote networks. Without it, a device can only communicate within its own local network." },
-      { q: "What does ARP do? What is the IPv6 equivalent?",
-        a: "<strong>ARP (Address Resolution Protocol)</strong> resolves an IPv4 address → MAC address. IPv6 equivalent: <strong>ND (Neighbor Discovery)</strong>." },
-      { q: "What are the roles of HTTP, TCP, IP, and Ethernet in loading a webpage?",
-        a: "<strong>HTTP</strong> — requests/format of web content. <strong>TCP</strong> — reliable delivery. <strong>IP</strong> — global routing. <strong>Ethernet</strong> — local NIC-to-NIC delivery." },
-      { q: "Name four internet standards organisations and their roles.",
-        a: "<strong>IETF</strong> — maintains TCP/IP. <strong>ICANN</strong> — IP addresses & domain names. <strong>IEEE</strong> — Ethernet & Wi-Fi standards. <strong>ITU</strong> — telecom standards." },
-      { q: "What are the benefits of using a layered network model?",
-        a: "Assists protocol design · Fosters vendor competition/interoperability · Prevents changes at one layer affecting others · Provides a <strong>common language</strong> for describing networking." },
-    ]
-  },
-  {
-    id: 'm4', label: 'M4 – Physical Layer', color: 'm4', accent: '#4dabf7',
-    cards: [
-      { q: "What are the three functional areas of Physical Layer standards?",
-        a: "<strong>Physical Components</strong> — hardware (NICs, cables, connectors). <strong>Encoding</strong> — converts bits to recognisable patterns. <strong>Signaling</strong> — how 0s and 1s are physically represented." },
-      { q: "How is data represented on different physical media types?",
-        a: "<strong>Copper cable</strong> → electrical signals. <strong>Fiber-optic cable</strong> → pulses of light. <strong>Wireless</strong> → microwave/radio signals." },
-      { q: "What is the difference between Bandwidth, Throughput, and Goodput?",
-        a: "<strong>Bandwidth</strong> — maximum capacity (theoretical). <strong>Throughput</strong> — actual measured speed. <strong>Goodput</strong> = Throughput − overhead (useful data only). Goodput &lt; Throughput &lt; Bandwidth." },
-      { q: "What are the three limitations of copper cabling and how is each mitigated?",
-        a: "<strong>Attenuation</strong> → respect cable length limits. <strong>EMI/RFI</strong> → use shielding (STP). <strong>Crosstalk</strong> → twist wire pairs (cancellation effect in UTP)." },
-      { q: "Compare UTP and STP cabling.",
-        a: "<strong>UTP</strong> — no shielding, uses twisting/cancellation, cheap, easy to install, most common. <strong>STP</strong> — braided/foil shielding, better EMI protection, more expensive, harder to install." },
-      { q: "What is the difference between a straight-through and a crossover UTP cable?",
-        a: "<strong>Straight-through</strong> (same standard both ends) — unlike devices: PC→switch, switch→router. <strong>Crossover</strong> (T568A one end, T568B other) — like devices: PC↔PC, switch↔switch." },
-      { q: "What are the advantages of fiber-optic over copper cabling?",
-        a: "Higher bandwidth (up to 100 Gbps), longer distances (up to 100 km), completely immune to EMI/RFI, no electrical hazards. Disadvantages: more expensive, harder to install." },
-      { q: "What is the difference between SMF and MMF fiber?",
-        a: "<strong>SMF</strong> (Single-Mode) — tiny core, laser, long distances, <em>yellow jacket</em>. <strong>MMF</strong> (Multi-Mode) — larger core, LED, up to 550 m, <em>orange or aqua jacket</em>." },
-      { q: "Name the four fiber-optic connector types.",
-        a: "<span class='tag'>ST</span> Straight-Tip &nbsp; <span class='tag'>SC</span> Subscriber Connector &nbsp; <span class='tag'>LC</span> Lucent Connector &nbsp; <span class='tag'>Duplex LC</span> Multimode" },
-      { q: "What are the four limitations of wireless media?",
-        a: "<strong>Coverage area</strong> — obstacles block signal. <strong>Interference</strong> — other devices disrupt. <strong>Security</strong> — no physical medium = anyone in range can intercept. <strong>Shared medium</strong> — half-duplex, bandwidth shared." },
-      { q: "Name the four wireless standards and their IEEE numbers.",
-        a: "<span class='tag'>802.11</span> Wi-Fi (WLAN) &nbsp; <span class='tag'>802.15</span> Bluetooth (WPAN) &nbsp; <span class='tag'>802.16</span> WiMAX &nbsp; <span class='tag'>802.15.4</span> Zigbee (IoT)" },
-      { q: "What UTP cable categories should you know?",
-        a: "<strong>Cat 3</strong> — 10 Mbps. <strong>Cat 5</strong> — 100 Mbps. <strong>Cat 5e</strong> — 1 Gbps. <strong>Cat 6</strong> — 1–10 Gbps. Higher category = better performance, stricter specs." },
-      { q: "What standards body defines UTP wiring standards? What standard governs it?",
-        a: "<strong>TIA/EIA</strong> defines UTP standards (TIA/EIA-568). <strong>IEEE</strong> rates the electrical performance categories (Cat 3, 5e, 6, etc.)." },
-      { q: "What is Auto-MDIX?",
-        a: "A feature that <strong>automatically detects the cable type</strong> and reconfigures the port — so a wrong cable (crossover vs straight-through) still works. Best practice: always use the correct cable regardless." },
-      { q: "What is latency and how does it differ from bandwidth?",
-        a: "<strong>Latency</strong> — time delay for data to travel from source to destination. <strong>Bandwidth</strong> — capacity of the link. High bandwidth doesn't prevent high latency (e.g. satellite = high bandwidth but also very high latency)." },
-    ]
-  },
-  {
-    id: 'm5', label: 'M5 – Number Systems', color: 'm5', accent: '#da77f2',
-    cards: [
-      { q: "What are the binary positional values from left to right in one octet?",
-        a: "<span class='tag'>128</span> <span class='tag'>64</span> <span class='tag'>32</span> <span class='tag'>16</span> <span class='tag'>8</span> <span class='tag'>4</span> <span class='tag'>2</span> <span class='tag'>1</span> — each is double the one to its right (powers of 2)." },
-      { q: "How do you convert binary to decimal?",
-        a: "For each bit that is <strong>1</strong>, add its positional value. Example: <code>11000000</code> = 128+64 = <strong>192</strong>." },
-      { q: "How do you convert decimal to binary (subtraction method)?",
-        a: "Start at 128. If number ≥ position → write 1, subtract. If &lt; → write 0, move on. Example: 168 → <strong>10101000</strong> (128+32+8)." },
-      { q: "What is an IPv4 address in binary terms?",
-        a: "<strong>32 bits</strong> divided into <strong>4 octets</strong> of 8 bits each, separated by dots. Humans use <em>dotted decimal</em>; devices use binary internally." },
-      { q: "Convert the IP address 192.168.11.10 to binary.",
-        a: "192 = <code>11000000</code> · 168 = <code>10101000</code> · 11 = <code>00001011</code> · 10 = <code>00001010</code>" },
-      { q: "What are the hexadecimal digit values for A through F?",
-        a: "<span class='tag'>A=10</span> <span class='tag'>B=11</span> <span class='tag'>C=12</span> <span class='tag'>D=13</span> <span class='tag'>E=14</span> <span class='tag'>F=15</span> — hex digits pick up where 9 left off." },
-      { q: "How do you convert decimal to hexadecimal?",
-        a: "<strong>Step 1</strong>: Convert decimal → binary. <strong>Step 2</strong>: Split into 4-bit nibbles. <strong>Step 3</strong>: Convert each nibble → hex digit. Example: 168 → 10101000 → 1010|1000 → <strong>A8</strong>." },
-      { q: "How do you convert hexadecimal to decimal?",
-        a: "<strong>Step 1</strong>: Convert each hex digit → 4-bit binary. <strong>Step 2</strong>: Combine into 8 bits. <strong>Step 3</strong>: Convert binary → decimal. Example: D2 → 1101|0010 → 11010010 → <strong>210</strong>." },
-      { q: "What is an IPv6 address in terms of bits and hex digits?",
-        a: "<strong>128 bits</strong> = 32 hexadecimal digits written as <strong>8 groups of 4 hex digits</strong> separated by colons. Each group = <strong>hextet</strong>." },
-      { q: "Where is hexadecimal used in networking?",
-        a: "<strong>IPv6 addresses</strong> (128 bits = 32 hex digits) and <strong>MAC addresses</strong> (48 bits = 12 hex digits). Hex is used because 1 hex digit = exactly 4 binary bits — far more compact than binary." },
-      { q: "What are the key binary/hex values to memorise?",
-        a: "<span class='tag'>0 = 00</span> <span class='tag'>255 = FF</span> <span class='tag'>192 = C0</span> <span class='tag'>168 = A8</span> <span class='tag'>128 = 80</span> <span class='tag'>10 = 0A</span>" },
-      { q: "What is positional notation?",
-        a: "The value of a digit depends on its <strong>position</strong> in the number. In binary (base 2): each position = a power of 2. In decimal (base 10): each position = a power of 10." },
-      { q: "What is a radix (base)?",
-        a: "The <strong>number of unique digits</strong> in a numbering system. Binary = radix 2 · Decimal = radix 10 · Hexadecimal = radix 16." },
-      { q: "How many bits is a MAC address and how is it written?",
-        a: "<strong>48 bits = 6 bytes = 12 hex digits</strong>. Written with hyphens or colons: e.g. <code>AA-BB-CC-DD-EE-FF</code>. First 3 bytes = OUI (vendor), last 3 bytes = vendor-assigned." },
-      { q: "What does a subnet mask do in binary?",
-        a: "The <strong>1s</strong> in the subnet mask identify the <strong>network portion</strong>; the <strong>0s</strong> identify the <strong>host portion</strong>. E.g. 255.255.255.0 = 11111111.11111111.11111111.00000000." },
-    ]
-  },
-  {
-    id: 'm6', label: 'M6 – Data Link Layer', color: 'm6', accent: '#ff8cc8',
-    cards: [
-      { q: "What are the two sublayers of the Data Link Layer and what does each do?",
-        a: "<strong>LLC</strong> — communicates with upper layers, identifies the L3 protocol carried. <strong>MAC</strong> — handles data encapsulation, physical addressing, and media access control." },
-      { q: "What four things does a router do at Layer 2 at each hop?",
-        a: "1. Accept frame from medium. 2. De-encapsulate (strip L2 header). 3. Re-encapsulate into a new frame. 4. Forward new frame on the next medium." },
-      { q: "What is the difference between a physical and logical topology?",
-        a: "<strong>Physical</strong> — actual device locations and cable connections. <strong>Logical</strong> — virtual paths, IP addressing, and interface assignments." },
-      { q: "What are the three WAN topologies?",
-        a: "<strong>Point-to-Point</strong> — simplest, two endpoints. <strong>Hub and Spoke</strong> — central site to branches (star-like). <strong>Mesh</strong> — every node connected to every other, highest redundancy." },
-      { q: "What are the four LAN topologies?",
-        a: "<strong>Star</strong> (modern) — central switch. <strong>Extended Star</strong> (modern) — multiple stars. <strong>Bus</strong> (legacy) — all on one cable. <strong>Ring</strong> (legacy) — each device connects to two neighbours." },
-      { q: "What is the difference between half-duplex and full-duplex?",
-        a: "<strong>Half-duplex</strong> — one device sends OR receives at a time (WLANs, legacy hubs). <strong>Full-duplex</strong> — simultaneous send and receive (modern switches). No collisions in full-duplex." },
-      { q: "How does CSMA/CD work?",
-        a: "Devices <strong>listen before sending</strong>. If two transmit at once → collision detected → both stop → wait a <em>random backoff time</em> → retransmit. Used by <strong>legacy wired Ethernet</strong>." },
-      { q: "How does CSMA/CA work and why is it used for wireless?",
-        a: "Devices announce the <strong>duration</strong> of their transmission — others wait until it's done. Used for <strong>Wi-Fi (802.11)</strong> because wireless devices can't detect a collision while transmitting." },
-      { q: "What are the three parts of a data link frame?",
-        a: "<strong>Header</strong> — addressing, type, control, start flag. <strong>Data</strong> — the payload (L3 packet). <strong>Trailer</strong> — error detection (FCS) and end flag." },
-      { q: "What are the six fields of a data link frame?",
-        a: "<span class='tag'>Start/Stop</span> <span class='tag'>Addressing</span> <span class='tag'>Type</span> <span class='tag'>Control</span> <span class='tag'>Data</span> <span class='tag'>Error Detection</span>" },
-      { q: "What is a Layer 2 address? How is it different from a Layer 3 address?",
-        a: "<strong>Layer 2 MAC</strong> — physical, local, changes at <em>every hop</em>. <strong>Layer 3 IP</strong> — logical, global, stays the same <em>end-to-end</em>." },
-      { q: "What is the difference between contention-based and controlled access?",
-        a: "<strong>Contention-based</strong> — all nodes compete for the medium (CSMA/CD, CSMA/CA). <strong>Controlled access</strong> — each node has a turn (Token Ring, ARCNET — deterministic)." },
-      { q: "Name the four standards bodies that define Data Link Layer protocols.",
-        a: "<span class='tag'>IEEE</span> <span class='tag'>ITU</span> <span class='tag'>ISO</span> <span class='tag'>ANSI</span>" },
-      { q: "Name five common data link layer protocols.",
-        a: "<strong>Ethernet</strong> (wired LAN), <strong>802.11</strong> (wireless LAN), <strong>PPP</strong> (WAN serial), <strong>HDLC</strong> (Cisco serial default), <strong>Frame Relay</strong> (legacy WAN)." },
-      { q: "Why must a router rebuild the frame at every hop?",
-        a: "Each link may use a <strong>different L2 protocol</strong> (e.g. Ethernet on LAN, PPP on WAN). MAC addresses are <strong>link-local</strong> — the router must put its own MAC as source and the next hop's MAC as destination." },
-    ]
-  },
-  {
-    id: 'm7', label: 'M7 – Ethernet Switching', color: 'm7', accent: '#63e6be',
-    cards: [
-      { q: "What are the Ethernet frame size limits and what happens when they're exceeded?",
-        a: "<strong>Min: 64 bytes</strong> (below = runt/collision fragment, discarded). <strong>Max: 1518 bytes</strong> (above = jumbo/baby giant). The preamble is NOT included in size calculations." },
-      { q: "What are the seven Ethernet frame fields in order?",
-        a: "<span class='tag'>Preamble</span> <span class='tag'>SFD</span> <span class='tag'>Dest MAC</span> <span class='tag'>Src MAC</span> <span class='tag'>EtherType</span> <span class='tag'>Data</span> <span class='tag'>FCS</span>" },
-      { q: "What is the structure of an Ethernet MAC address?",
-        a: "<strong>48 bits = 6 bytes = 12 hex digits</strong>. First 3 bytes = <strong>OUI</strong> (vendor ID from IEEE). Last 3 bytes = vendor-assigned unique value." },
-      { q: "What is the broadcast MAC address and how does a switch handle it?",
-        a: "<strong>FF-FF-FF-FF-FF-FF</strong>. Switch <em>floods</em> it out all ports except the incoming port. Routers do <strong>NOT</strong> forward broadcasts." },
-      { q: "What is ARP and what MAC address does it use?",
-        a: "<strong>ARP</strong> resolves IPv4 → MAC. It sends a <strong>broadcast</strong> (FF-FF-FF-FF-FF-FF) asking 'who has IP X?'. The matching device replies with its MAC address." },
-      { q: "What are the two MAC address types for multicast?",
-        a: "<strong>IPv4 multicast</strong>: destination MAC starts with <code>01-00-5E</code>. <strong>IPv6 multicast</strong>: destination MAC starts with <code>33-33</code>." },
-      { q: "How does a switch build its MAC address table?",
-        a: "<strong>Learn</strong>: reads source MAC + incoming port of every frame → adds to table. <strong>Forward</strong>: looks up destination MAC → forwards to that port only (filtering) or floods if unknown." },
-      { q: "What is an 'unknown unicast' and what does the switch do?",
-        a: "A frame whose <strong>destination MAC is not in the MAC table</strong>. The switch <em>floods</em> it out all ports except the incoming port. Once the destination replies, its MAC is learned." },
-      { q: "How long does a switch keep MAC table entries by default?",
-        a: "<strong>5 minutes</strong>. If no frame is received from a device within 5 minutes, its entry is aged out and removed. Also called the CAM table." },
-      { q: "Compare Store-and-Forward vs Cut-Through switching.",
-        a: "<strong>Store-and-Forward</strong> — waits for full frame, full CRC check, discards corrupt frames, higher latency, required for QoS. <strong>Cut-Through</strong> — forwards after reading dest MAC only, no error check, lowest latency." },
-      { q: "What are the two variants of cut-through switching?",
-        a: "<strong>Fast-Forward</strong> — forwards after dest MAC only, absolute lowest latency, no error check. <strong>Fragment-Free</strong> — reads first 64 bytes, catches most errors, slightly higher latency." },
-      { q: "Compare Port-Based and Shared Memory buffering.",
-        a: "<strong>Port-Based</strong> — per-port queues; a busy destination blocks other frames (head-of-line blocking). <strong>Shared Memory</strong> — common buffer for all ports; more flexible, no bottleneck, supports asymmetric speeds." },
-      { q: "What is a duplex mismatch and what causes it?",
-        a: "One end full-duplex, other end half-duplex. Causes: autonegotiation fails, one end manually reconfigured. Symptoms: slow speeds, late collisions, CRC errors. Fix: configure <em>both ends</em> to full-duplex." },
-      { q: "Why does a modern switch not need CSMA/CD?",
-        a: "Switches create a <strong>separate collision domain per port</strong> and operate in <strong>full-duplex</strong> — both devices can send and receive simultaneously. No shared medium = no collisions possible." },
-      { q: "What is Auto-MDIX?",
-        a: "Detects cable type (straight-through vs crossover) and reconfigures the port automatically. Enabled by default on Cisco IOS 12.2(18)SE+. Best practice: still use the correct cable type." },
-    ]
-  }
+  { id:'all', label:'All Modules', color:'all', cards:[] },
+  { id:'m1', label:'M1 – Networking Today', color:'m1', cards:[
+    { q:"What are the three elements required for any communication?", a:"<strong>Source (sender)</strong>, <strong>Destination (receiver)</strong>, and <strong>Channel (media)</strong> — all three must exist for communication to occur." },
+    { q:"What is the difference between a server and a client?", a:"A <strong>server</strong> provides information or services (e.g. web pages, email). A <strong>client</strong> requests and uses those services (e.g. a browser requesting a web page)." },
+    { q:"What are two advantages and two disadvantages of a P2P network?", a:"<strong>Advantages:</strong> easy to set up, low cost. <strong>Disadvantages:</strong> no centralised administration, not secure, not scalable, slower performance." },
+    { q:"What is the difference between a LAN and a WAN?", a:"<strong>LAN</strong> covers a small area (office/home), managed by one org, high speed. <strong>WAN</strong> covers large areas (cities/countries), managed by service providers, typically slower links between LANs." },
+    { q:"What is the internet and who owns it?", a:"A <strong>worldwide collection of interconnected LANs and WANs</strong>. It is <strong>not owned</strong> by any single individual or group — bodies like IETF, ICANN, and IAB maintain its structure." },
+    { q:"What is the difference between an intranet and an extranet?", a:"<strong>Intranet:</strong> private, internal network accessible only to org members. <strong>Extranet:</strong> extends limited access to authorised outside parties (e.g. suppliers, partners)." },
+    { q:"What are the four characteristics of a reliable network?", a:"<span class='tag'>Fault Tolerance</span> <span class='tag'>Scalability</span> <span class='tag'>QoS</span> <span class='tag'>Security</span>" },
+    { q:"What is Fault Tolerance in a network?", a:"Limiting the impact of a failure by providing <strong>multiple redundant paths</strong>. Packet-switched networks achieve this by allowing each packet to take a different route." },
+    { q:"What is Quality of Service (QoS)?", a:"The mechanism that <strong>prioritises certain types of traffic</strong> (e.g. VoIP calls over file downloads) to ensure reliable, consistent delivery even during network congestion." },
+    { q:"What are the three goals of network security (CIA)?", a:"<strong>Confidentiality</strong> — only intended recipients read the data. <strong>Integrity</strong> — data not altered in transit. <strong>Availability</strong> — authorised users can always access data." },
+    { q:"What does BYOD stand for and what does it mean?", a:"<strong>Bring Your Own Device</strong> — employees/students use their own personal devices (laptops, phones, tablets) to access company or school networks and resources." },
+    { q:"What are the four types of cloud computing?", a:"<span class='tag'>Public</span> open to all, pay-per-use &nbsp;<span class='tag'>Private</span> single org &nbsp;<span class='tag'>Hybrid</span> mix of both &nbsp;<span class='tag'>Custom</span> industry-specific" },
+    { q:"What is a converged network?", a:"A single network infrastructure that carries <strong>data, voice, and video</strong> over one set of rules and standards — unlike traditional separate networks for each type." },
+    { q:"Name four external security threats to a network.", a:"Viruses/worms/Trojans, spyware/adware, denial-of-service attacks, identity theft, zero-day attacks, data interception." },
+    { q:"What additional security tools do large corporate networks use beyond a home network?", a:"<span class='tag'>Dedicated firewall</span> <span class='tag'>ACL</span> <span class='tag'>IPS</span> <span class='tag'>VPN</span>" },
+  ]},
+  { id:'m2', label:'M2 – Switch Config', color:'m2', cards:[
+    { q:"What are the three parts of an operating system?", a:"<strong>Shell</strong> — user interface (CLI or GUI). <strong>Kernel</strong> — core OS, manages hardware resources. <strong>Hardware</strong> — the physical components." },
+    { q:"What are the three methods to access a Cisco IOS device?", a:"<strong>Console</strong> — physical cable, used for initial setup. <strong>SSH</strong> — encrypted remote access. <strong>Telnet</strong> — unencrypted remote access (not recommended)." },
+    { q:"What are the two main IOS EXEC modes and how do you identify each?", a:"<strong>User EXEC</strong> — limited monitoring, prompt ends with <code>&gt;</code>. <strong>Privileged EXEC</strong> — full access to all commands, prompt ends with <code>#</code>." },
+    { q:"What command moves you from User EXEC to Privileged EXEC mode?", a:"Type <strong><code>enable</code></strong> at the User EXEC prompt: <code>Switch&gt; enable</code> → <code>Switch#</code>" },
+    { q:"What command enters Global Configuration mode and what is its prompt?", a:"<strong><code>configure terminal</code></strong> (or <code>conf t</code>). Prompt: <code>Switch(config)#</code>" },
+    { q:"What is the difference between 'exit' and 'end' in IOS?", a:"<strong>exit</strong> — moves back ONE level in the hierarchy. <strong>end</strong> (or Ctrl+Z) — jumps directly back to Privileged EXEC from any subconfiguration mode." },
+    { q:"What are the two types of IOS help and how do you use them?", a:"<strong>Context-sensitive (?)</strong> — type ? to see available commands at any point. <strong>Command syntax check</strong> — IOS shows a caret (^) pointing to the error when a command is mistyped." },
+    { q:"What command sets a switch hostname to 'SW-Floor-1'?", a:"<code>SW(config)# <strong>hostname SW-Floor-1</strong></code>" },
+    { q:"What is the difference between 'enable password' and 'enable secret'?", a:"<strong>enable password</strong> — stored in plaintext (weak). <strong>enable secret</strong> — stored as MD5 hash (strong). Always use <code>enable secret</code> — it overrides enable password." },
+    { q:"What does 'service password-encryption' do and what is its limitation?", a:"Encrypts all plaintext passwords in the config using <strong>weak Type 7</strong> encryption — prevents casual viewing. Limitation: reversible with freely available tools. Not a substitute for enable secret." },
+    { q:"What is the difference between running-config and startup-config?", a:"<strong>running-config</strong> — in RAM, active changes, <em>lost on power off</em>. <strong>startup-config</strong> — in NVRAM, loaded at boot, <em>survives power loss</em>." },
+    { q:"What command saves the running configuration permanently?", a:"<code>Switch# <strong>copy running-config startup-config</strong></code>" },
+    { q:"What three commands configure an IP address on Switch VLAN 1?", a:"<code>interface vlan 1</code> → <code>ip address [IP] [mask]</code> → <code>no shutdown</code>" },
+    { q:"What is a Switch Virtual Interface (SVI) and why configure an IP on it?", a:"A <strong>virtual interface</strong> on a switch (not a physical port). Configuring an IP on the SVI allows <strong>remote management</strong> of the switch via SSH or Telnet." },
+    { q:"What is a duplex mismatch and how is it fixed?", a:"One port is <strong>half-duplex</strong>, the other is <strong>full-duplex</strong>. Causes slow speeds, collisions, CRC errors. Fix: configure both ends to the same duplex (best practice: both full-duplex)." },
+  ]},
+  { id:'m3', label:'M3 – Protocols & Models', color:'m3', cards:[
+    { q:"What are the five network protocol requirements?", a:"<span class='tag'>Encoding</span> <span class='tag'>Formatting/Encapsulation</span> <span class='tag'>Size</span> <span class='tag'>Timing</span> <span class='tag'>Delivery Options</span>" },
+    { q:"What are the three message delivery options?", a:"<strong>Unicast</strong> — one-to-one. <strong>Multicast</strong> — one-to-many (not all). <strong>Broadcast</strong> — one-to-all. Note: Broadcasts are <em>IPv4 only</em> — IPv6 uses multicast/anycast instead." },
+    { q:"What is message timing and what three things does it cover?", a:"<strong>Flow Control</strong> — rate of transmission. <strong>Response Timeout</strong> — how long to wait for a reply. <strong>Access Method</strong> — when a device is allowed to send." },
+    { q:"What is a protocol suite and what is the most common one?", a:"A <strong>group of inter-related protocols</strong> that work together to perform communication. The most common is <strong>TCP/IP</strong>, maintained by the IETF." },
+    { q:"What are the four layers of the TCP/IP model?", a:"<span class='tag'>Application</span> <span class='tag'>Transport</span> <span class='tag'>Internet</span> <span class='tag'>Network Access</span>" },
+    { q:"What are the seven layers of the OSI model?", a:"7-Application · 6-Presentation · 5-Session · 4-Transport · 3-Network · 2-Data Link · 1-Physical. <em>Mnemonic: All People Seem To Need Data Processing</em>" },
+    { q:"How do TCP/IP layers map to OSI layers?", a:"<strong>Application</strong> = OSI 7+6+5. <strong>Transport</strong> = OSI 4. <strong>Internet</strong> = OSI 3. <strong>Network Access</strong> = OSI 2+1." },
+    { q:"What is data encapsulation and what are the five PDU names?", a:"Adding headers/trailers at each layer as data moves <em>down</em> the stack: <span class='tag'>Data</span> → <span class='tag'>Segment</span> → <span class='tag'>Packet</span> → <span class='tag'>Frame</span> → <span class='tag'>Bits</span>" },
+    { q:"What is segmentation and what are its two benefits?", a:"Breaking messages into smaller units. Benefits: <strong>Speed</strong> — avoids tying up the link. <strong>Efficiency</strong> — only failed segments need retransmitting, not the whole file." },
+    { q:"How does Layer 2 addressing differ from Layer 3 addressing across hops?", a:"<strong>Layer 3 IP address</strong> — stays the same end-to-end (final destination). <strong>Layer 2 MAC address</strong> — changes at every hop (router rebuilds the frame for each link)." },
+    { q:"What is the default gateway and what happens without one?", a:"The <strong>IP address of the local router</strong> — the 'door' to remote networks. Without it, a device can only communicate within its own local network." },
+    { q:"What does ARP do? What is the IPv6 equivalent?", a:"<strong>ARP (Address Resolution Protocol)</strong> resolves an IPv4 address → MAC address. IPv6 equivalent: <strong>ND (Neighbor Discovery)</strong>." },
+    { q:"What are the roles of HTTP, TCP, IP, and Ethernet in loading a webpage?", a:"<strong>HTTP</strong> — requests/format of web content. <strong>TCP</strong> — reliable delivery. <strong>IP</strong> — global routing. <strong>Ethernet</strong> — local NIC-to-NIC delivery." },
+    { q:"Name four internet standards organisations and their roles.", a:"<strong>IETF</strong> — maintains TCP/IP. <strong>ICANN</strong> — IP addresses & domain names. <strong>IEEE</strong> — Ethernet & Wi-Fi standards. <strong>ITU</strong> — telecom standards." },
+    { q:"What are the benefits of using a layered network model?", a:"Assists protocol design · Fosters vendor competition/interoperability · Prevents changes at one layer affecting others · Provides a <strong>common language</strong> for describing networking." },
+  ]},
+  { id:'m4', label:'M4 – Physical Layer', color:'m4', cards:[
+    { q:"What are the three functional areas of Physical Layer standards?", a:"<strong>Physical Components</strong> — hardware (NICs, cables, connectors). <strong>Encoding</strong> — converts bits to recognisable patterns. <strong>Signaling</strong> — how 0s and 1s are physically represented." },
+    { q:"How is data represented on different physical media types?", a:"<strong>Copper cable</strong> → electrical signals. <strong>Fiber-optic cable</strong> → pulses of light. <strong>Wireless</strong> → microwave/radio signals." },
+    { q:"What is the difference between Bandwidth, Throughput, and Goodput?", a:"<strong>Bandwidth</strong> — maximum capacity (theoretical). <strong>Throughput</strong> — actual measured speed. <strong>Goodput</strong> = Throughput − overhead (useful data only). Goodput &lt; Throughput &lt; Bandwidth." },
+    { q:"What are the three limitations of copper cabling and how is each mitigated?", a:"<strong>Attenuation</strong> → respect cable length limits. <strong>EMI/RFI</strong> → use shielding (STP). <strong>Crosstalk</strong> → twist wire pairs (cancellation effect in UTP)." },
+    { q:"Compare UTP and STP cabling.", a:"<strong>UTP</strong> — no shielding, uses twisting/cancellation, cheap, easy to install, most common. <strong>STP</strong> — braided/foil shielding, better EMI protection, more expensive, harder to install." },
+    { q:"What is the difference between a straight-through and a crossover UTP cable?", a:"<strong>Straight-through</strong> (same standard both ends) — unlike devices: PC→switch, switch→router. <strong>Crossover</strong> (T568A one end, T568B other) — like devices: PC↔PC, switch↔switch." },
+    { q:"What are the advantages of fiber-optic over copper cabling?", a:"Higher bandwidth (up to 100 Gbps), longer distances (up to 100 km), completely immune to EMI/RFI, no electrical hazards. Disadvantages: more expensive, harder to install." },
+    { q:"What is the difference between SMF and MMF fiber?", a:"<strong>SMF</strong> (Single-Mode) — tiny core, laser, long distances, <em>yellow jacket</em>. <strong>MMF</strong> (Multi-Mode) — larger core, LED, up to 550 m, <em>orange or aqua jacket</em>." },
+    { q:"Name the four fiber-optic connector types.", a:"<span class='tag'>ST</span> Straight-Tip &nbsp;<span class='tag'>SC</span> Subscriber Connector &nbsp;<span class='tag'>LC</span> Lucent Connector &nbsp;<span class='tag'>Duplex LC</span> Multimode" },
+    { q:"What are the four limitations of wireless media?", a:"<strong>Coverage area</strong> — obstacles block signal. <strong>Interference</strong> — other devices disrupt. <strong>Security</strong> — no physical medium = anyone in range can intercept. <strong>Shared medium</strong> — half-duplex, bandwidth shared." },
+    { q:"Name the four wireless standards and their IEEE numbers.", a:"<span class='tag'>802.11</span> Wi-Fi (WLAN) &nbsp;<span class='tag'>802.15</span> Bluetooth (WPAN) &nbsp;<span class='tag'>802.16</span> WiMAX &nbsp;<span class='tag'>802.15.4</span> Zigbee (IoT)" },
+    { q:"What UTP cable categories should you know?", a:"<strong>Cat 3</strong> — 10 Mbps. <strong>Cat 5</strong> — 100 Mbps. <strong>Cat 5e</strong> — 1 Gbps. <strong>Cat 6</strong> — 1–10 Gbps. Higher category = better performance, stricter specs." },
+    { q:"What standards body defines UTP wiring standards? What standard governs it?", a:"<strong>TIA/EIA</strong> defines UTP standards (TIA/EIA-568). <strong>IEEE</strong> rates the electrical performance categories (Cat 3, 5e, 6, etc.)." },
+    { q:"What is Auto-MDIX?", a:"A feature that <strong>automatically detects the cable type</strong> and reconfigures the port — so a wrong cable (crossover vs straight-through) still works. Best practice: always use the correct cable regardless." },
+    { q:"What is latency and how does it differ from bandwidth?", a:"<strong>Latency</strong> — time delay for data to travel from source to destination. <strong>Bandwidth</strong> — capacity of the link. High bandwidth doesn't prevent high latency (e.g. satellite = high bandwidth but also very high latency)." },
+  ]},
+  { id:'m5', label:'M5 – Number Systems', color:'m5', cards:[
+    { q:"What are the binary positional values from left to right in one octet?", a:"<span class='tag'>128</span><span class='tag'>64</span><span class='tag'>32</span><span class='tag'>16</span><span class='tag'>8</span><span class='tag'>4</span><span class='tag'>2</span><span class='tag'>1</span> — each is double the one to its right (powers of 2)." },
+    { q:"How do you convert binary to decimal?", a:"For each bit that is <strong>1</strong>, add its positional value. Example: <code>11000000</code> = 128+64 = <strong>192</strong>." },
+    { q:"How do you convert decimal to binary (subtraction method)?", a:"Start at 128. If number ≥ position → write 1, subtract. If &lt; → write 0, move on. Example: 168 → <strong>10101000</strong> (128+32+8)." },
+    { q:"What is an IPv4 address in binary terms?", a:"<strong>32 bits</strong> divided into <strong>4 octets</strong> of 8 bits each, separated by dots. Humans use <em>dotted decimal</em>; devices use binary internally." },
+    { q:"Convert the IP address 192.168.11.10 to binary.", a:"192 = <code>11000000</code> · 168 = <code>10101000</code> · 11 = <code>00001011</code> · 10 = <code>00001010</code>" },
+    { q:"What are the hexadecimal digit values for A through F?", a:"<span class='tag'>A=10</span><span class='tag'>B=11</span><span class='tag'>C=12</span><span class='tag'>D=13</span><span class='tag'>E=14</span><span class='tag'>F=15</span> — hex digits pick up where 9 left off." },
+    { q:"How do you convert decimal to hexadecimal?", a:"<strong>Step 1</strong>: Convert decimal → binary. <strong>Step 2</strong>: Split into 4-bit nibbles. <strong>Step 3</strong>: Convert each nibble → hex digit. Example: 168 → 10101000 → 1010|1000 → <strong>A8</strong>." },
+    { q:"How do you convert hexadecimal to decimal?", a:"<strong>Step 1</strong>: Convert each hex digit → 4-bit binary. <strong>Step 2</strong>: Combine into 8 bits. <strong>Step 3</strong>: Convert binary → decimal. Example: D2 → 1101|0010 → 11010010 → <strong>210</strong>." },
+    { q:"What is an IPv6 address in terms of bits and hex digits?", a:"<strong>128 bits</strong> = 32 hexadecimal digits written as <strong>8 groups of 4 hex digits</strong> separated by colons. Each group = <strong>hextet</strong>." },
+    { q:"Where is hexadecimal used in networking?", a:"<strong>IPv6 addresses</strong> (128 bits = 32 hex digits) and <strong>MAC addresses</strong> (48 bits = 12 hex digits). Hex is used because 1 hex digit = exactly 4 binary bits — far more compact than binary." },
+    { q:"What are the key binary/hex values to memorise?", a:"<span class='tag'>0=00</span><span class='tag'>255=FF</span><span class='tag'>192=C0</span><span class='tag'>168=A8</span><span class='tag'>128=80</span><span class='tag'>10=0A</span>" },
+    { q:"What is positional notation?", a:"The value of a digit depends on its <strong>position</strong> in the number. In binary (base 2): each position = a power of 2. In decimal (base 10): each position = a power of 10." },
+    { q:"What is a radix (base)?", a:"The <strong>number of unique digits</strong> in a numbering system. Binary = radix 2 · Decimal = radix 10 · Hexadecimal = radix 16." },
+    { q:"How many bits is a MAC address and how is it written?", a:"<strong>48 bits = 6 bytes = 12 hex digits</strong>. Written with hyphens or colons: e.g. <code>AA-BB-CC-DD-EE-FF</code>. First 3 bytes = OUI (vendor), last 3 bytes = vendor-assigned." },
+    { q:"What does a subnet mask do in binary?", a:"The <strong>1s</strong> in the subnet mask identify the <strong>network portion</strong>; the <strong>0s</strong> identify the <strong>host portion</strong>. E.g. 255.255.255.0 = 11111111.11111111.11111111.00000000." },
+  ]},
+  { id:'m6', label:'M6 – Data Link Layer', color:'m6', cards:[
+    { q:"What are the two sublayers of the Data Link Layer and what does each do?", a:"<strong>LLC</strong> — communicates with upper layers, identifies the L3 protocol carried. <strong>MAC</strong> — handles data encapsulation, physical addressing, and media access control." },
+    { q:"What four things does a router do at Layer 2 at each hop?", a:"1. Accept frame from medium. 2. De-encapsulate (strip L2 header). 3. Re-encapsulate into a new frame. 4. Forward new frame on the next medium." },
+    { q:"What is the difference between a physical and logical topology?", a:"<strong>Physical</strong> — actual device locations and cable connections. <strong>Logical</strong> — virtual paths, IP addressing, and interface assignments." },
+    { q:"What are the three WAN topologies?", a:"<strong>Point-to-Point</strong> — simplest, two endpoints. <strong>Hub and Spoke</strong> — central site to branches (star-like). <strong>Mesh</strong> — every node connected to every other, highest redundancy." },
+    { q:"What are the four LAN topologies?", a:"<strong>Star</strong> (modern) — central switch. <strong>Extended Star</strong> (modern) — multiple stars. <strong>Bus</strong> (legacy) — all on one cable. <strong>Ring</strong> (legacy) — each device connects to two neighbours." },
+    { q:"What is the difference between half-duplex and full-duplex?", a:"<strong>Half-duplex</strong> — one device sends OR receives at a time (WLANs, legacy hubs). <strong>Full-duplex</strong> — simultaneous send and receive (modern switches). No collisions in full-duplex." },
+    { q:"How does CSMA/CD work?", a:"Devices <strong>listen before sending</strong>. If two transmit at once → collision detected → both stop → wait a <em>random backoff time</em> → retransmit. Used by <strong>legacy wired Ethernet</strong>." },
+    { q:"How does CSMA/CA work and why is it used for wireless?", a:"Devices announce the <strong>duration</strong> of their transmission — others wait until it's done. Used for <strong>Wi-Fi (802.11)</strong> because wireless devices can't detect a collision while transmitting." },
+    { q:"What are the three parts of a data link frame?", a:"<strong>Header</strong> — addressing, type, control, start flag. <strong>Data</strong> — the payload (L3 packet). <strong>Trailer</strong> — error detection (FCS) and end flag." },
+    { q:"What are the six fields of a data link frame?", a:"<span class='tag'>Start/Stop</span><span class='tag'>Addressing</span><span class='tag'>Type</span><span class='tag'>Control</span><span class='tag'>Data</span><span class='tag'>Error Detection</span>" },
+    { q:"What is a Layer 2 address? How is it different from a Layer 3 address?", a:"<strong>Layer 2 MAC</strong> — physical, local, changes at <em>every hop</em>. <strong>Layer 3 IP</strong> — logical, global, stays the same <em>end-to-end</em>." },
+    { q:"What is the difference between contention-based and controlled access?", a:"<strong>Contention-based</strong> — all nodes compete for the medium (CSMA/CD, CSMA/CA). <strong>Controlled access</strong> — each node has a turn (Token Ring, ARCNET — deterministic)." },
+    { q:"Name the four standards bodies that define Data Link Layer protocols.", a:"<span class='tag'>IEEE</span><span class='tag'>ITU</span><span class='tag'>ISO</span><span class='tag'>ANSI</span>" },
+    { q:"Name five common data link layer protocols.", a:"<strong>Ethernet</strong> (wired LAN), <strong>802.11</strong> (wireless LAN), <strong>PPP</strong> (WAN serial), <strong>HDLC</strong> (Cisco serial default), <strong>Frame Relay</strong> (legacy WAN)." },
+    { q:"Why must a router rebuild the frame at every hop?", a:"Each link may use a <strong>different L2 protocol</strong> (e.g. Ethernet on LAN, PPP on WAN). MAC addresses are <strong>link-local</strong> — the router must put its own MAC as source and the next hop's MAC as destination." },
+  ]},
+  { id:'m7', label:'M7 – Ethernet Switching', color:'m7', cards:[
+    { q:"What are the Ethernet frame size limits and what happens when they're exceeded?", a:"<strong>Min: 64 bytes</strong> (below = runt/collision fragment, discarded). <strong>Max: 1518 bytes</strong> (above = jumbo/baby giant). The preamble is NOT included in size calculations." },
+    { q:"What are the seven Ethernet frame fields in order?", a:"<span class='tag'>Preamble</span><span class='tag'>SFD</span><span class='tag'>Dest MAC</span><span class='tag'>Src MAC</span><span class='tag'>EtherType</span><span class='tag'>Data</span><span class='tag'>FCS</span>" },
+    { q:"What is the structure of an Ethernet MAC address?", a:"<strong>48 bits = 6 bytes = 12 hex digits</strong>. First 3 bytes = <strong>OUI</strong> (vendor ID from IEEE). Last 3 bytes = vendor-assigned unique value." },
+    { q:"What is the broadcast MAC address and how does a switch handle it?", a:"<strong>FF-FF-FF-FF-FF-FF</strong>. Switch <em>floods</em> it out all ports except the incoming port. Routers do <strong>NOT</strong> forward broadcasts." },
+    { q:"What is ARP and what MAC address does it use?", a:"<strong>ARP</strong> resolves IPv4 → MAC. It sends a <strong>broadcast</strong> (FF-FF-FF-FF-FF-FF) asking 'who has IP X?'. The matching device replies with its MAC address." },
+    { q:"What are the two MAC address types for multicast?", a:"<strong>IPv4 multicast</strong>: destination MAC starts with <code>01-00-5E</code>. <strong>IPv6 multicast</strong>: destination MAC starts with <code>33-33</code>." },
+    { q:"How does a switch build its MAC address table?", a:"<strong>Learn</strong>: reads source MAC + incoming port of every frame → adds to table. <strong>Forward</strong>: looks up destination MAC → forwards to that port only (filtering) or floods if unknown." },
+    { q:"What is an 'unknown unicast' and what does the switch do?", a:"A frame whose <strong>destination MAC is not in the MAC table</strong>. The switch <em>floods</em> it out all ports except the incoming port. Once the destination replies, its MAC is learned." },
+    { q:"How long does a switch keep MAC table entries by default?", a:"<strong>5 minutes</strong>. If no frame is received from a device within 5 minutes, its entry is aged out and removed. Also called the CAM table." },
+    { q:"Compare Store-and-Forward vs Cut-Through switching.", a:"<strong>Store-and-Forward</strong> — waits for full frame, full CRC check, discards corrupt frames, higher latency, required for QoS. <strong>Cut-Through</strong> — forwards after reading dest MAC only, no error check, lowest latency." },
+    { q:"What are the two variants of cut-through switching?", a:"<strong>Fast-Forward</strong> — forwards after dest MAC only, absolute lowest latency, no error check. <strong>Fragment-Free</strong> — reads first 64 bytes, catches most errors, slightly higher latency." },
+    { q:"Compare Port-Based and Shared Memory buffering.", a:"<strong>Port-Based</strong> — per-port queues; a busy destination blocks other frames (head-of-line blocking). <strong>Shared Memory</strong> — common buffer for all ports; more flexible, no bottleneck, supports asymmetric speeds." },
+    { q:"What is a duplex mismatch and what causes it?", a:"One end full-duplex, other end half-duplex. Causes: autonegotiation fails, one end manually reconfigured. Symptoms: slow speeds, late collisions, CRC errors. Fix: configure <em>both ends</em> to full-duplex." },
+    { q:"Why does a modern switch not need CSMA/CD?", a:"Switches create a <strong>separate collision domain per port</strong> and operate in <strong>full-duplex</strong> — both devices can send and receive simultaneously. No shared medium = no collisions possible." },
+    { q:"What is Auto-MDIX?", a:"Detects cable type (straight-through vs crossover) and reconfigures the port automatically. Enabled by default on Cisco IOS 12.2(18)SE+. Best practice: still use the correct cable type." },
+  ]},
 ];
 
-// Build the 'All Modules' deck
-modules[0].cards = modules.slice(1).flatMap(m =>
-  m.cards.map(c => ({ ...c, _module: m.label, _color: m.color }))
-);
+modules[0].cards = modules.slice(1).flatMap(m => m.cards.map(c=>({...c,_module:m.label,_color:m.color})));
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-let activeModule = 1; // default: module 1
-let deck = [];
-let idx = 0;
-let flipped = false;
+let activeModule=1,deck=[],idx=0,flipped=false;
 
-function getModuleColor(m) { return getComputedStyle(document.documentElement).getPropertyValue(`--${m}`).trim(); }
-
-function setModule(modIdx) {
-  activeModule = modIdx;
-  deck = [...modules[modIdx].cards];
-  idx = 0;
-  flipped = false;
-  renderTabs();
-  renderCard();
+function setModule(i){activeModule=i;deck=[...modules[i].cards];idx=0;flipped=false;renderTabs();renderCard()}
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=modules.map((m,i)=>`<button class="tab ${i===activeModule?'active':''}" style="${i===activeModule?`background:var(--${m.color});border-color:var(--${m.color});`:''}" onclick="setModule(${i})">${m.label}</button>`).join('');
 }
-
-function renderTabs() {
-  const wrap = document.getElementById('tabs');
-  wrap.innerHTML = modules.map((m, i) => `
-    <button class="tab ${i === activeModule ? 'active' : ''}"
-      style="${i === activeModule ? `background:var(--${m.color});border-color:var(--${m.color});` : ''}"
-      onclick="setModule(${i})">${m.label}</button>
-  `).join('');
+function renderCard(){
+  const card=deck[idx],m=modules[activeModule];
+  const cc=card._color||m.color,lbl=card._module||m.label.replace(/M\d – /,'');
+  flipped=false;
+  const w=document.getElementById('card');
+  w.classList.remove('flipped');w.className=`card-wrap ${cc}`;
+  w.style.animation='none';w.offsetHeight;w.style.animation='';
+  document.getElementById('card-label').textContent=lbl;
+  document.getElementById('card-label-back').textContent=lbl+' — Answer';
+  document.getElementById('card-q').textContent=card.q;
+  document.getElementById('card-a').innerHTML=card.a;
+  const pct=Math.round(((idx+1)/deck.length)*100);
+  document.getElementById('prog-label').textContent=`Card ${idx+1} of ${deck.length}`;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-fill').style.background=`var(--${cc})`;
+  document.getElementById('card-count').textContent=`${idx+1} / ${deck.length}`;
+  document.getElementById('btn-prev').disabled=idx===0;
+  document.getElementById('btn-next').disabled=idx===deck.length-1;
 }
-
-function renderCard() {
-  const card = deck[idx];
-  const m = modules[activeModule];
-  const colorClass = card._color || m.color;
-  const label = card._module ? `${card._module}` : m.label.replace(/M\d – /,'');
-
-  // Reset flip
-  flipped = false;
-  const wrap = document.getElementById('card');
-  wrap.classList.remove('flipped');
-  wrap.className = `card-wrap ${colorClass}`;
-
-  // Re-trigger animation
-  wrap.style.animation = 'none';
-  wrap.offsetHeight;
-  wrap.style.animation = '';
-
-  document.getElementById('card-label').textContent = label;
-  document.getElementById('card-label-back').textContent = label + ' — Answer';
-  document.getElementById('card-q').textContent = card.q;
-  document.getElementById('card-a').innerHTML = card.a;
-
-  // Progress
-  const pct = Math.round(((idx + 1) / deck.length) * 100);
-  document.getElementById('prog-label').textContent = `Card ${idx+1} of ${deck.length}`;
-  document.getElementById('prog-pct').textContent = pct + '%';
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-fill').style.background = `var(--${colorClass})`;
-
-  document.getElementById('card-count').textContent = `${idx+1} / ${deck.length}`;
-  document.getElementById('btn-prev').disabled = idx === 0;
-  document.getElementById('btn-next').disabled = idx === deck.length - 1;
-}
-
-function flipCard() {
-  flipped = !flipped;
-  document.getElementById('card').classList.toggle('flipped', flipped);
-}
-
-function nextCard() {
-  if (idx < deck.length - 1) { idx++; renderCard(); }
-}
-
-function prevCard() {
-  if (idx > 0) { idx--; renderCard(); }
-}
-
-function shuffleCards() {
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  idx = 0;
-  renderCard();
-}
-
-function resetCards() {
-  deck = [...modules[activeModule].cards];
-  idx = 0;
-  renderCard();
-}
-
-// Keyboard navigation
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextCard();
-  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevCard();
-  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+function flipCard(){flipped=!flipped;document.getElementById('card').classList.toggle('flipped',flipped)}
+function nextCard(){if(idx<deck.length-1){idx++;renderCard()}}
+function prevCard(){if(idx>0){idx--;renderCard()}}
+function shuffleCards(){for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}idx=0;renderCard()}
+function resetCards(){deck=[...modules[activeModule].cards];idx=0;renderCard()}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')nextCard();
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp')prevCard();
+  else if(e.key===' '||e.key==='Enter'){e.preventDefault();flipCard()}
 });
-
-// Init
 setModule(1);
 </script>
 </body>
