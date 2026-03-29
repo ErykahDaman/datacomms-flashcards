@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITN Advanced Flashcards — Modules 1–7</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --bg:#0d0f1a; --surface:#13162a; --card-front:#181c35; --card-back:#0a1628;
+    --border:rgba(255,255,255,0.07); --text:#e8eaf6; --muted:#7b80a8; --accent:#ff6b35;
+    --m1:#ff6b6b; --m2:#ffa94d; --m3:#a9e34b; --m4:#4dabf7;
+    --m5:#da77f2; --m6:#ff8cc8; --m7:#63e6be;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content:''; position:fixed; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: relative; z-index: 10;
+    display: flex; justify-content: center; align-items: center; gap: .5rem;
+    padding: .75rem 1.5rem; border-bottom: 1px solid var(--border);
+    background: rgba(13,15,26,.85); backdrop-filter: blur(10px);
+    flex-wrap: wrap;
+  }
+  .nav-link {
+    padding: .4rem 1.1rem; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--muted); font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: .78rem; text-decoration: none;
+    transition: all .2s; letter-spacing: .04em;
+  }
+  .nav-link:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+  .nav-link.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-sep { color: var(--border); user-select: none; }
+
+  /* HEADER */
+  header {
+    position: relative; z-index: 2;
+    padding: 2rem 2rem 1.2rem; text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-size: clamp(1.8rem,4vw,3rem); font-weight: 800; letter-spacing: -.02em;
+    background: linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  header p { color: var(--muted); margin-top: .4rem; font-size: .95rem; }
+  .badge {
+    display: inline-block; margin-top: .6rem; padding: .3rem .9rem;
+    background: rgba(255,107,53,.15); border: 1px solid rgba(255,107,53,.35);
+    border-radius: 999px; color: var(--accent);
+    font-size: .75rem; font-weight: 700; letter-spacing: .08em;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* TABS */
+  .tabs {
+    position: relative; z-index: 2;
+    display: flex; flex-wrap: wrap; gap: .5rem;
+    justify-content: center; padding: 1.5rem 1.5rem .5rem;
+  }
+  .tab {
+    padding: .45rem 1.1rem; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--muted); font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: .82rem; cursor: pointer;
+    transition: all .2s; letter-spacing: .04em;
+  }
+  .tab:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+  .tab.active { color: #000; font-weight: 700; }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    position: relative; z-index: 2;
+    max-width: 680px; margin: 1rem auto .2rem; padding: 0 1.5rem;
+  }
+  .progress-info {
+    display: flex; justify-content: space-between;
+    font-size: .78rem; color: var(--muted); margin-bottom: .4rem;
+    font-family: 'Space Mono', monospace;
+  }
+  .progress-track {
+    height: 3px; background: rgba(255,255,255,.08);
+    border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+
+  /* CARD STAGE */
+  .stage {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 1.5rem 1.5rem; perspective: 1200px;
+  }
+
+  /* ─── FLIP CARD (fixed architecture) ─── */
+  .card-scene {
+    width: 100%; max-width: 680px;
+    perspective: 1200px; cursor: pointer;
+  }
+  .card-scene:focus { outline: none; }
+
+  .card-inner {
+    position: relative; width: 100%;
+    transform-style: preserve-3d;
+    transition: transform .55s cubic-bezier(.4,0,.2,1);
+  }
+  .card-scene.flipped .card-inner { transform: rotateY(180deg); }
+
+  /* Each face: normal flow (not absolute) so height = content */
+  .card-face {
+    width: 100%; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    padding: 2rem 2.2rem;
+    overflow: hidden;
+    position: relative; /* for top bar */
+  }
+  /* Top color bar */
+  .card-face::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .card-front {
+    background: var(--card-front);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center; min-height: 300px;
+  }
+  .card-back {
+    background: var(--card-back);
+    position: absolute; top: 0; left: 0; right: 0;
+    transform: rotateY(180deg);
+    display: flex; flex-direction: column;
+    justify-content: flex-start; align-items: flex-start;
+    text-align: left; min-height: 300px;
+  }
+
+  /* Module colour theming */
+  .scene-m1 .card-face::before { background: var(--m1); }
+  .scene-m2 .card-face::before { background: var(--m2); }
+  .scene-m3 .card-face::before { background: var(--m3); }
+  .scene-m4 .card-face::before { background: var(--m4); }
+  .scene-m5 .card-face::before { background: var(--m5); }
+  .scene-m6 .card-face::before { background: var(--m6); }
+  .scene-m7 .card-face::before { background: var(--m7); }
+  .scene-all .card-face::before {
+    background: linear-gradient(90deg,var(--m1),var(--m2),var(--m3),var(--m4),var(--m5),var(--m6),var(--m7));
+  }
+
+  .scene-m1 .card-label { color: var(--m1); }
+  .scene-m2 .card-label { color: var(--m2); }
+  .scene-m3 .card-label { color: var(--m3); }
+  .scene-m4 .card-label { color: var(--m4); }
+  .scene-m5 .card-label { color: var(--m5); }
+  .scene-m6 .card-label { color: var(--m6); }
+  .scene-m7 .card-label { color: var(--m7); }
+  .scene-all .card-label { color: var(--accent); }
+
+  /* Card content elements */
+  .diff-badge {
+    position: absolute; top: .9rem; right: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+    padding: .18rem .55rem; border-radius: 999px; border: 1px solid;
+  }
+  .diff-hard  { color: #ff6b6b; border-color: rgba(255,107,107,.35); background: rgba(255,107,107,.08); }
+  .diff-medium{ color: #ffa94d; border-color: rgba(255,169,77,.35);  background: rgba(255,169,77,.08); }
+  .diff-exam  { color: #da77f2; border-color: rgba(218,119,242,.35); background: rgba(218,119,242,.08); }
+
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .6rem;
+  }
+  .marks {
+    font-family: 'Space Mono', monospace; font-size: .68rem;
+    color: var(--accent); opacity: .9; margin-bottom: .5rem; letter-spacing: .06em;
+  }
+  .card-q {
+    font-size: clamp(.98rem,2.2vw,1.15rem); font-weight: 700;
+    line-height: 1.6; color: #fff; white-space: pre-wrap;
+    max-width: 560px;
+  }
+  .card-hint {
+    margin-top: 1.4rem; font-family: 'Space Mono', monospace;
+    font-size: .7rem; color: var(--muted); letter-spacing: .06em;
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .card-hint::before { content: '↩'; opacity: .5; }
+
+  .card-a { font-size: clamp(.85rem,1.8vw,.98rem); line-height: 1.75; color: #d4e8ff; width: 100%; }
+  .card-a strong { color: #fff; }
+  .card-a em { color: #aac8e8; }
+  .card-a .tag {
+    display: inline-block; background: rgba(255,255,255,.08);
+    border-radius: 4px; padding: .1rem .4rem;
+    font-family: 'Space Mono', monospace; font-size: .78em;
+    margin: .1rem; color: #00e5ff;
+  }
+  .card-a code {
+    font-family: 'Space Mono', monospace;
+    background: rgba(255,255,255,.07); padding: .05rem .35rem;
+    border-radius: 4px; font-size: .88em; color: #a9e34b;
+  }
+  .card-a .ans-step {
+    display: flex; gap: .7rem; margin: .35rem 0; align-items: flex-start;
+  }
+  .card-a .step-num {
+    min-width: 1.4rem; height: 1.4rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .68rem; font-weight: 700; font-family: 'Space Mono', monospace;
+    flex-shrink: 0; margin-top: .15rem;
+  }
+  .card-a .ans-block {
+    background: rgba(0,0,0,.2); border-left: 2px solid rgba(255,255,255,.1);
+    padding: .6rem .9rem; border-radius: 0 8px 8px 0; margin: .4rem 0; font-size: .93em;
+  }
+  .card-a .cmd {
+    font-family: 'Space Mono', monospace; background: rgba(0,0,0,.45);
+    color: #a9e34b; padding: .55rem .9rem; border-radius: 6px;
+    margin: .35rem 0; font-size: .8em; display: block; white-space: pre;
+    overflow-x: auto; border-left: 2px solid rgba(169,227,75,.3);
+  }
+
+  /* CONTROLS */
+  .controls {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center; align-items: center;
+    gap: 1rem; padding: .8rem 1.5rem 1.5rem;
+  }
+  .btn {
+    padding: .6rem 1.6rem; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text); font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: .88rem; cursor: pointer;
+    transition: all .18s; letter-spacing: .03em;
+  }
+  .btn:hover:not(:disabled) { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.25); }
+  .btn:disabled { opacity: .3; cursor: default; }
+  .card-count { font-family: 'Space Mono', monospace; font-size: .8rem; color: var(--muted); min-width: 60px; text-align: center; }
+  .shuffle-row {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center; padding-bottom: 2.5rem; gap: .7rem;
+  }
+  .btn.small { padding: .38rem 1rem; font-size: .75rem; }
+
+  /* entrance animation */
+  @keyframes cardIn { from { opacity:0; transform: translateY(12px) scale(.97); } to { opacity:1; transform: none; } }
+  .card-scene { animation: cardIn .3s ease; }
+
+  /* keyboard hint row */
+  .key-hints {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center; gap: 1.2rem;
+    font-family: 'Space Mono', monospace; font-size: .65rem;
+    color: var(--muted); padding-bottom: 1rem; flex-wrap: wrap;
+  }
+  .key-hints span { display: flex; align-items: center; gap: .3rem; }
+  .key-hints kbd {
+    background: rgba(255,255,255,.07); border: 1px solid var(--border);
+    border-radius: 4px; padding: .1rem .35rem; font-size: .65rem; color: var(--text);
+  }
+
+  @media (max-width:500px) {
+    .card-face { padding: 1.4rem 1.2rem; }
+    .card-a .cmd { font-size: .72em; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-link" href="ITN_Flashcards_Basic.html">📚 Basic Flashcards</a>
+  <span class="nav-sep">|</span>
+  <a class="nav-link active" href="#">🔥 Advanced Flashcards</a>
+</nav>
+
+<header>
+  <h1>ITN Advanced Flashcards</h1>
+  <p>Modules 1–7 &nbsp;·&nbsp; Exam-style questions based on past papers</p>
+  <div class="badge">🔥 EXAM LEVEL — Based on 2024 &amp; 2025 Papers</div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-info">
+    <span id="prog-label">Card 1 of —</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+</div>
+
+<div class="stage">
+  <div class="card-scene" id="card-scene" tabindex="0" onclick="flipCard()">
+    <div class="card-inner" id="card-inner">
+
+      <!-- FRONT -->
+      <div class="card-face card-front">
+        <div class="diff-badge" id="card-diff"></div>
+        <div class="card-label" id="card-label"></div>
+        <div class="marks" id="card-marks"></div>
+        <div class="card-q" id="card-q">Loading…</div>
+        <div class="card-hint">tap / press Space to reveal answer</div>
+      </div>
+
+      <!-- BACK -->
+      <div class="card-face card-back" id="card-back-face">
+        <div class="card-label" id="card-label-back"></div>
+        <div class="card-a" id="card-a"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn" id="btn-prev" onclick="prevCard()" title="Previous (←)">← Prev</button>
+  <span class="card-count" id="card-count">— / —</span>
+  <button class="btn" id="btn-next" onclick="nextCard()" title="Next (→)">Next →</button>
+</div>
+
+<div class="shuffle-row">
+  <button class="btn small" onclick="shuffleCards()">⇄ Shuffle</button>
+  <button class="btn small" onclick="resetCards()">↺ Reset Order</button>
+</div>
+
+<div class="key-hints">
+  <span><kbd>Space</kbd> Flip card</span>
+  <span><kbd>→</kbd> Next</span>
+  <span><kbd>←</kbd> Prev</span>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   CARD DATA  —  each module has its cards array
+   diff: 'medium' | 'hard' | 'exam'
+   marks: string e.g. '[4 marks]'
+   ════════════════════════════════════════════════════════ */
+const modules = [
+  /*── MODULE 1 ─────────────────────────────────────────*/
+  { id:'m1', label:'M1 – Networking Today', cards:[
+    { diff:'exam', marks:'[4 marks]',
+      q:`Company XYZ managers are worried about losing important data during a disaster. Distinguish between a Public cloud and a Hybrid cloud. Give TWO distinguishing points each.`,
+      a:`<div class="ans-block"><strong>Public Cloud:</strong> Available to the general public, typically on a pay-per-use or free model. Infrastructure is owned and managed by a third-party provider (e.g. AWS, Google). Multiple organisations share the same infrastructure. <em>Not suitable for highly sensitive data.</em></div><div class="ans-block"><strong>Hybrid Cloud:</strong> Combines TWO or more cloud types (e.g. private + public). Each part remains distinct but both are connected using the same architecture. Sensitive data stays on the private cloud; scalable workloads run on the public cloud.</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Briefly describe the FOUR key characteristics of a reliable network. (One sentence per characteristic.)`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Fault Tolerance:</strong> Limits the impact of failure by providing multiple redundant paths so traffic can reroute around failed links.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Scalability:</strong> The ability to expand quickly to support new users and applications without degrading existing performance.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Quality of Service (QoS):</strong> Prioritises certain traffic types (e.g. VoIP, video) to ensure consistent delivery during congestion.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">4</div><div><strong>Security:</strong> Protects infrastructure and transmitted data — ensuring Confidentiality, Integrity, and Availability (CIA).</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Describe TWO characteristics of Internet Protocol (IP) as used in networking.`,
+      a:`<div class="ans-block"><strong>1. Connectionless:</strong> IP does not establish a dedicated end-to-end connection before sending data. Each packet is sent independently and may take a different path to the destination.</div><div class="ans-block"><strong>2. Best-effort delivery (unreliable):</strong> IP does not guarantee delivery. It does not track packets, acknowledge receipt, or retransmit lost packets. Reliability is delegated to higher-layer protocols like TCP.</div><em>Other valid answers: hierarchical addressing, media independence.</em>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`What type of network would an organisation use to provide SECURE access to their data for individuals from a DIFFERENT organisation, such as business partners?`,
+      a:`<div class="ans-block"><strong>Extranet.</strong><br>An extranet is a private network that allows controlled, secure access to part of an organisation's internal network for authorised outside parties — such as suppliers or partners — without giving them full intranet access.</div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`Distinguish between half-duplex and full-duplex communication. Give one real-world example of each.`,
+      a:`<div class="ans-block"><strong>Half-duplex:</strong> Communication flows in both directions, but only ONE direction at a time. Example: walkie-talkies, legacy hub-based Ethernet.</div><div class="ans-block"><strong>Full-duplex:</strong> Communication flows in BOTH directions simultaneously. Example: modern switch-connected Ethernet, telephone calls.</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`List THREE intermediary network devices and briefly state the role of each.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Switch:</strong> Connects devices within a LAN and uses MAC addresses to forward frames only to the correct port.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Router:</strong> Connects different networks (LAN to WAN) and uses IP addresses to determine the best path for packets.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Firewall:</strong> Monitors and controls incoming/outgoing traffic based on security rules to protect the network.</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`State TWO advantages and TWO disadvantages of cloud computing for a business.`,
+      a:`<div class="ans-block"><strong>Advantages:</strong><br>• Access data/applications from anywhere on any device.<br>• Reduces cost — no need to buy/maintain expensive on-site servers.</div><div class="ans-block"><strong>Disadvantages:</strong><br>• Requires a reliable internet connection — no internet = no access.<br>• Security and privacy concerns — data is stored on a third-party server.</div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What is the difference between a LAN and a WAN? Give an example of each.`,
+      a:`<div class="ans-block"><strong>LAN (Local Area Network):</strong> Covers a small geographic area — a single building or campus. Owned and managed by one organisation. Example: a school or office network.</div><div class="ans-block"><strong>WAN (Wide Area Network):</strong> Spans large geographic areas — cities, countries, or globally. Uses service provider infrastructure. Example: the Internet, or a company's links between branch offices.</div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`Explain the difference between an Intranet, an Extranet, and the Internet.`,
+      a:`<div class="ans-block"><strong>Intranet:</strong> A private, internal network accessible only to employees of an organisation. Used to share internal resources securely.</div><div class="ans-block"><strong>Extranet:</strong> An extension of an intranet that allows controlled access to authorised external parties (suppliers, partners). Still private but partially open.</div><div class="ans-block"><strong>Internet:</strong> A global, publicly accessible network of interconnected networks. No single owner; open to anyone with a connection.</div>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`Identify TWO end devices and explain their role on a network.`,
+      a:`<div class="ans-block"><strong>1. PC / Laptop:</strong> A source or destination for data. Users interact with network services through end devices such as email clients, web browsers, etc.</div><div class="ans-block"><strong>2. Server:</strong> Provides services to clients on the network — e.g. a web server delivers web pages; a file server stores and shares files.</div>`
+    },
+    { diff:'medium', marks:'[4 marks]',
+      q:`Describe FOUR network topologies and state one advantage of each.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Star:</strong> All devices connect to a central switch/hub. Advantage: easy to troubleshoot; failure of one device does not affect others.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Bus:</strong> All devices share a single backbone cable. Advantage: simple and cheap to install for small networks.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Ring:</strong> Devices connect in a circular loop. Advantage: data flows in one direction, reducing collision risk.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">4</div><div><strong>Mesh:</strong> Every device connects to every other device. Advantage: highest redundancy — no single point of failure.</div></div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`What are the THREE components of network infrastructure? Give an example of each.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Devices:</strong> End devices and intermediary devices that originate, receive, or forward data. Example: PC, switch, router.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Media:</strong> The physical or wireless medium that carries signals between devices. Example: copper cable, fibre-optic, Wi-Fi.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Services:</strong> Software processes that support communications. Example: DHCP, DNS, email.</div></div>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`What does BYOD (Bring Your Own Device) mean and what is ONE security risk it introduces?`,
+      a:`<div class="ans-block"><strong>BYOD:</strong> Employees use their own personal devices (phones, laptops, tablets) to access corporate network resources and data.</div><div class="ans-block"><strong>Security risk:</strong> Personal devices may not meet corporate security standards — they could have unpatched vulnerabilities, malware, or lack encryption — creating a pathway for attackers to access the corporate network.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Describe the converged network concept. What is the main advantage over separate networks for voice, video, and data?`,
+      a:`<div class="ans-block"><strong>Converged network:</strong> A single network infrastructure that simultaneously carries voice, video, and data traffic. Previously, each required a separate, purpose-built network.</div><div class="ans-block"><strong>Main advantage:</strong> Reduced cost and complexity — organisations only need to install and maintain ONE network instead of three. QoS mechanisms prioritise time-sensitive traffic (voice/video) over regular data to ensure quality.</div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`State the difference between a client and a server in a network context. Can one device be both? Explain.`,
+      a:`<div class="ans-block"><strong>Server:</strong> Provides a service to other devices (e.g. file server, web server, DHCP server).</div><div class="ans-block"><strong>Client:</strong> Requests and consumes services provided by a server (e.g. a PC requesting a web page).</div><div class="ans-block"><strong>Yes</strong> — in a peer-to-peer (P2P) network, the same device can act as both a client AND a server simultaneously, sharing resources while also consuming others'.</div>`
+    },
+  ]},
+
+  /*── MODULE 2 ─────────────────────────────────────────*/
+  { id:'m2', label:'M2 – Switch Config', cards:[
+    { diff:'exam', marks:'[10 marks]',
+      q:`Write the complete Cisco IOS commands to:\n(i) Disable DNS lookup\n(ii) Set hostname to R1\n(iii) Set encrypted privileged EXEC password to 'cisco'\n(iv) Set console password to 'class'\n(v) Set Telnet password to 'TelPass'`,
+      a:`<span class="cmd">! (i) Disable DNS lookup
+Router(config)# no ip domain-lookup</span><span class="cmd">! (ii) Set hostname
+Router(config)# hostname R1</span><span class="cmd">! (iii) Encrypted privileged EXEC password
+R1(config)# enable secret cisco</span><span class="cmd">! (iv) Console access password
+R1(config)# line console 0
+R1(config-line)# password class
+R1(config-line)# login
+R1(config-line)# exit</span><span class="cmd">! (v) Telnet access password
+R1(config)# line vty 0 15
+R1(config-line)# password TelPass
+R1(config-line)# login
+R1(config-line)# end</span>`
+    },
+    { diff:'exam', marks:'[10 marks]',
+      q:`What do the following Cisco IOS commands do?\n(i) enable  (ii) configure terminal  (iii) service password-encryption\n(iv) exit  (v) banner motd`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">i</div><div><strong>enable:</strong> Moves from User EXEC mode (>) to Privileged EXEC mode (#). Grants access to all commands.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">ii</div><div><strong>configure terminal:</strong> Enters Global Configuration mode from Privileged EXEC. Prompt becomes (config)#.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">iii</div><div><strong>service password-encryption:</strong> Encrypts all plaintext passwords in the running config using weak Type 7 encryption. Prevents casual viewing.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">iv</div><div><strong>exit:</strong> Moves back ONE level in the mode hierarchy (e.g. config-line → global config → privileged EXEC).</div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">v</div><div><strong>banner motd:</strong> Sets a Message of the Day banner — displayed to anyone accessing the device. Used as a legal warning.</div></div>`
+    },
+    { diff:'exam', marks:'[5 marks]',
+      q:`Explain what the following keyboard actions do when configuring a Cisco router:\n(i) Tab  (ii) Space bar  (iii) Question mark (?)  (iv) Up Arrow  (v) Ctrl-Z`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">i</div><div><strong>Tab:</strong> Auto-completes a partial command. E.g. 'conf' + Tab → 'configure'.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">ii</div><div><strong>Space bar:</strong> Displays the next full page of output at a '--More--' prompt.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">iii</div><div><strong>?:</strong> Shows available commands at any point, or valid arguments for the current command.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">iv</div><div><strong>Up Arrow:</strong> Recalls the previous command from the history buffer.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">v</div><div><strong>Ctrl-Z:</strong> Immediately exits any configuration mode and returns to Privileged EXEC mode (same as <code>end</code>).</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`What is the difference between 'enable password' and 'enable secret' on a Cisco device? Which should you always use and why?`,
+      a:`<div class="ans-block"><strong>enable password:</strong> Stores the privileged EXEC password in PLAIN TEXT in the config file. Insecure — anyone who views the config can read it.</div><div class="ans-block"><strong>enable secret:</strong> Stores the password as an MD5 hash. Cannot be reversed by common tools. Always use this.</div><div class="ans-block">If both are set, <code>enable secret</code> takes precedence. Note: <code>service password-encryption</code> does NOT upgrade enable password to MD5 — it only applies weak Type 7 encryption.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`A technician makes several changes to a router's running configuration but then realises the changes are wrong. The changes have NOT yet been saved. What are the TWO options to undo them?`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Remove commands individually:</strong> Use the 'no' form of each command. E.g. <code>no hostname R1</code> reverts to the default.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Reload the device:</strong> Use <code>Router# reload</code>. Since changes were NOT saved to startup-config (NVRAM), reloading discards the running-config and reverts to the saved startup-config. <em>Warning: causes brief downtime.</em></div></div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What is the purpose of configuring an IP address on Switch VLAN 1? What three commands are required?`,
+      a:`<div class="ans-block"><strong>Purpose:</strong> VLAN 1 is the Switch Virtual Interface (SVI). Assigning an IP allows the switch to be <em>remotely managed</em> via SSH or Telnet without a console cable.</div><span class="cmd">Switch(config)# interface vlan 1
+Switch(config-if)# ip address 192.168.1.20 255.255.255.0
+Switch(config-if)# no shutdown</span>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`A Cisco switch has been configured. Write the command to:\n(i) Save the running configuration\n(ii) View the running configuration\n(iii) View the startup configuration\n(iv) Erase the startup configuration`,
+      a:`<span class="cmd">! (i) Save running config to NVRAM
+Switch# copy running-config startup-config
+! (or shorthand:)
+Switch# wr</span><span class="cmd">! (ii) View running config (RAM)
+Switch# show running-config</span><span class="cmd">! (iii) View startup config (NVRAM)
+Switch# show startup-config</span><span class="cmd">! (iv) Erase startup config
+Switch# erase startup-config
+! Then reload to clear RAM:
+Switch# reload</span>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`Explain the difference between the running-config and the startup-config on a Cisco device. Where is each stored?`,
+      a:`<div class="ans-block"><strong>Running-config:</strong> The active configuration currently operating on the device. Stored in <strong>RAM</strong> — volatile. Any changes take effect immediately. Lost when the device is reloaded or powered off unless saved.</div><div class="ans-block"><strong>Startup-config:</strong> The configuration loaded on boot. Stored in <strong>NVRAM</strong> — non-volatile. It persists through reloads. Only updated when you explicitly save: <code>copy running-config startup-config</code>.</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`List and describe the FOUR Cisco IOS command modes in order, including the prompt shown for each.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>User EXEC mode:</strong> Prompt: <code>Router></code> — Limited monitoring commands only. Cannot make changes.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Privileged EXEC mode:</strong> Prompt: <code>Router#</code> — Full access to all monitoring/debug commands. Enter with <code>enable</code>.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Global Configuration mode:</strong> Prompt: <code>Router(config)#</code> — Device-wide changes. Enter with <code>configure terminal</code>.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">4</div><div><strong>Interface/Line Configuration mode:</strong> Prompt: <code>Router(config-if)#</code> or <code>(config-line)#</code> — Configure a specific interface or line. E.g. <code>interface fa0/0</code> or <code>line console 0</code>.</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Write the commands to configure SSH access on a Cisco router (assume IP domain name = cisco.com, username = admin, password = P@ss123).`,
+      a:`<span class="cmd">Router(config)# ip domain-name cisco.com
+Router(config)# crypto key generate rsa
+! Enter key modulus: 1024 (minimum for SSH v2)
+Router(config)# ip ssh version 2
+Router(config)# username admin secret P@ss123
+Router(config)# line vty 0 15
+Router(config-line)# transport input ssh
+Router(config-line)# login local
+Router(config-line)# end</span><div class="ans-block"><em>Note: SSH is preferred over Telnet because SSH encrypts all traffic; Telnet sends data including passwords in plaintext.</em></div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What does the 'no shutdown' command do on a Cisco interface? What is the default state of a router interface vs a switch interface?`,
+      a:`<div class="ans-block"><strong>no shutdown:</strong> Administratively enables (activates) the interface. Without it, the interface remains in an <em>administratively down</em> state and will not pass traffic.</div><div class="ans-block"><strong>Router interfaces</strong> are <strong>shutdown by default</strong> and must be enabled with <code>no shutdown</code>.<br><strong>Switch interfaces</strong> are <strong>active by default</strong> — no need to run <code>no shutdown</code> unless they were manually disabled.</div>`
+    },
+    { diff:'exam', marks:'[5 marks]',
+      q:`Describe the purpose of FIVE common 'show' commands used to verify Cisco device configuration.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><code>show running-config</code> — Displays the current active configuration in RAM.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><code>show interfaces</code> — Shows status, errors, and traffic statistics for all interfaces.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><code>show ip interface brief</code> — Quick summary of all interfaces: IP address, status, and protocol state.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">4</div><div><code>show version</code> — Displays IOS version, hardware model, uptime, and memory info.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">5</div><div><code>show ip route</code> — Displays the routing table showing all known networks and how to reach them.</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Explain the purpose of the 'login' command when configuring console or VTY lines. What happens if it is omitted?`,
+      a:`<div class="ans-block"><strong>Purpose of 'login':</strong> The <code>login</code> command instructs the device to prompt for a password when a connection is made to that line. Without <code>login</code>, the password set with the <code>password</code> command is stored but <strong>never asked for</strong> — anyone can connect without authentication.</div><div class="ans-block"><strong>If omitted:</strong> The line is accessible without any password prompt, which is a serious security vulnerability. Always follow <code>password [pw]</code> with <code>login</code>.</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`What is the purpose of a default gateway on:\n(i) A host (PC)\n(ii) A switch\nAnd how is it configured on each?`,
+      a:`<div class="ans-block"><strong>(i) Host:</strong> The default gateway is the IP address of the router interface on the same subnet. When a host needs to reach a device on a DIFFERENT network, it sends the packet to the default gateway.<br>Set in the OS (e.g. Control Panel → Network settings) or assigned automatically via DHCP.</div><div class="ans-block"><strong>(ii) Switch:</strong> A Layer 2 switch needs a default gateway to be reachable for remote management from other networks.<br><span class="cmd" style="font-size:.78em">Switch(config)# ip default-gateway 192.168.1.1</span></div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What is the console port on a Cisco device? What is it used for and how do you connect to it?`,
+      a:`<div class="ans-block"><strong>Console port:</strong> A physical port (usually RJ-45 or USB) on a Cisco device used for <em>out-of-band</em> management — direct local access that does not use the network.</div><div class="ans-block"><strong>Use:</strong> Initial device setup, password recovery, and troubleshooting when remote access is unavailable.<br><strong>Connection:</strong> Use a rollover (console) cable from the PC's serial/USB port to the device's console port, and terminal emulation software (e.g. PuTTY) at 9600 baud.</div>`
+    },
+  ]},
+
+  /*── MODULE 3 ─────────────────────────────────────────*/
+  { id:'m3', label:'M3 – Protocols & Models', cards:[
+    { diff:'exam', marks:'[8 marks]',
+      q:`With the aid of a diagram, illustrate the layers of the TCP/IP model AND specify ONE protocol under each layer.`,
+      a:`<div class="ans-block"><strong>TCP/IP Model (top → bottom):</strong></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">4</div><div><strong>Application Layer</strong> — handles network services to applications.<br>Protocols: <span class="tag">HTTP</span><span class="tag">FTP</span><span class="tag">DNS</span><span class="tag">DHCP</span></div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">3</div><div><strong>Transport Layer</strong> — end-to-end delivery, error recovery, flow control.<br>Protocols: <span class="tag">TCP</span><span class="tag">UDP</span></div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">2</div><div><strong>Internet Layer</strong> — logical addressing and routing between networks.<br>Protocols: <span class="tag">IP</span><span class="tag">ICMP</span><span class="tag">ARP</span></div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Network Access Layer</strong> — physical transmission and MAC addressing.<br>Protocols: <span class="tag">Ethernet</span><span class="tag">Wi-Fi (802.11)</span><span class="tag">PPP</span></div></div>`
+    },
+    { diff:'exam', marks:'[5 marks]',
+      q:`Encapsulation adds protocol information as data moves DOWN the TCP/IP stack. Identify the PDU name at EACH layer.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">4</div><div><strong>Application Layer → Data</strong><br>Raw user data, no transport header yet.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">3</div><div><strong>Transport Layer → Segment (TCP) / Datagram (UDP)</strong><br>TCP/UDP header added: source/dest port, sequence number.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">2</div><div><strong>Internet Layer → Packet</strong><br>IP header added: source/dest IP address, TTL.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Network Access Layer → Frame → Bits</strong><br>Layer 2 header + trailer added (MAC addresses, FCS). Transmitted as Bits on the wire.</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`PC-A (192.168.1.10) sends data to PC-B (10.0.0.20) through Router R1. How do the destination IP address and destination MAC address change as the packet travels PC-A → R1 → PC-B?`,
+      a:`<div class="ans-block"><strong>Destination IP Address: stays the same end-to-end.</strong><br>PC-A → R1: Dest IP = 10.0.0.20<br>R1 → PC-B: Dest IP = 10.0.0.20<br><em>IP is logical — it identifies the final destination throughout.</em></div><div class="ans-block"><strong>Destination MAC Address: changes at every hop.</strong><br>PC-A → R1: Dest MAC = R1's interface MAC<br>R1 → PC-B: Dest MAC = PC-B's MAC<br><em>MAC is link-local — R1 strips the old frame and builds a new one for each hop.</em></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Give TWO basic functions of ARP and state TWO problems/issues associated with ARP.`,
+      a:`<div class="ans-block"><strong>Functions:</strong><br>1. Resolves an IPv4 address to its corresponding MAC address.<br>2. Maintains an ARP cache that stores recent IP-to-MAC mappings to avoid re-broadcasting.</div><div class="ans-block"><strong>Issues:</strong><br>1. <strong>ARP Spoofing/Poisoning:</strong> A malicious device sends fake ARP replies, linking its MAC to another device's IP — enabling man-in-the-middle attacks.<br>2. <strong>Broadcast overhead:</strong> ARP requests are broadcasts that create significant traffic on large networks.</div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`What is the command used to display a Cisco router's routing table? What information does it show?`,
+      a:`<span class="cmd">Router# show ip route</span><div class="ans-block">Shows: all known networks, the method by which each was learned (<strong>C</strong>=connected, <strong>S</strong>=static, <strong>O</strong>=OSPF, <strong>R</strong>=RIP), the outgoing interface, and the administrative distance/metric.</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe TWO characteristics of a static route on a Cisco router.`,
+      a:`<div class="ans-block"><strong>1. Manually configured:</strong> A static route is entered by an administrator using <code>ip route</code>. It does not update automatically when the topology changes.</div><div class="ans-block"><strong>2. No adaptability:</strong> If a link fails, the static route remains, pointing to a dead link. An administrator must correct it manually. Best used for small or stub networks.</div>`
+    },
+    { diff:'exam', marks:'[6 marks]',
+      q:`Compare the OSI model and the TCP/IP model. How many layers does each have? Which OSI layers map to the TCP/IP Application layer?`,
+      a:`<div class="ans-block"><strong>OSI Model: 7 layers</strong><br>7 Application, 6 Presentation, 5 Session, 4 Transport, 3 Network, 2 Data Link, 1 Physical</div><div class="ans-block"><strong>TCP/IP Model: 4 layers</strong><br>4 Application, 3 Transport, 2 Internet, 1 Network Access</div><div class="ans-block"><strong>Mapping:</strong><br>OSI layers 7 (Application), 6 (Presentation), and 5 (Session) all collapse into the single TCP/IP <strong>Application layer</strong>.<br>OSI layer 4 → TCP/IP Transport<br>OSI layer 3 → TCP/IP Internet<br>OSI layers 1–2 → TCP/IP Network Access</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Compare TCP and UDP. State TWO characteristics of each and give an appropriate use case for each protocol.`,
+      a:`<div class="ans-block"><strong>TCP (Transmission Control Protocol):</strong><br>• Connection-oriented — establishes a 3-way handshake before transfer.<br>• Reliable — guarantees delivery, ordering, and error recovery.<br><strong>Use case:</strong> Web browsing (HTTP/HTTPS), email, file transfers — where accuracy matters.</div><div class="ans-block"><strong>UDP (User Datagram Protocol):</strong><br>• Connectionless — sends data without setup.<br>• Best-effort — no acknowledgements, no guaranteed delivery.<br><strong>Use case:</strong> Video streaming, VoIP, online gaming — where speed matters more than perfection.</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`What are port numbers used for in networking? State the port numbers for THREE common application-layer protocols.`,
+      a:`<div class="ans-block"><strong>Port numbers</strong> identify specific processes or services running on a host. They allow multiple applications to use the network simultaneously on the same device (multiplexing).</div><div class="ans-block">Common ports:<br>• <strong>HTTP:</strong> Port 80<br>• <strong>HTTPS:</strong> Port 443<br>• <strong>FTP:</strong> Port 21 (control) / 20 (data)<br>• <strong>DNS:</strong> Port 53<br>• <strong>DHCP:</strong> Port 67/68<br>• <strong>Telnet:</strong> Port 23<br>• <strong>SSH:</strong> Port 22</div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`Describe the TCP three-way handshake process and explain why it is necessary.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>SYN:</strong> The client sends a TCP segment with the SYN flag set to the server — "I want to connect."</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>SYN-ACK:</strong> The server responds with SYN and ACK flags — "I received your request and I'm ready."</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>ACK:</strong> The client sends an ACK — "Confirmed. Let's communicate."</div></div><div class="ans-block"><strong>Why necessary:</strong> Ensures both sides are reachable, synchronises sequence numbers, and confirms both parties agree to communicate before any data is sent.</div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What is the difference between a protocol and a standard? Give an example of each.`,
+      a:`<div class="ans-block"><strong>Protocol:</strong> A set of rules governing how devices communicate — defines format, timing, sequencing, and error control. Example: TCP/IP defines how data is transmitted over the internet.</div><div class="ans-block"><strong>Standard:</strong> A set of rules agreed upon by industry bodies (IEEE, IETF, ISO) to ensure interoperability between devices from different vendors. Example: IEEE 802.3 (Ethernet standard), IEEE 802.11 (Wi-Fi standard).</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe what happens at EACH layer of the TCP/IP model when you type a URL into a browser and press Enter. (One point per layer.)`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">4</div><div><strong>Application:</strong> Browser creates an HTTP request. DNS resolves the URL to an IP address.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">3</div><div><strong>Transport:</strong> TCP segments the HTTP request, adds port numbers (dest: 80), performs 3-way handshake.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">2</div><div><strong>Internet:</strong> IP header added with source/dest IP addresses. Router uses this to forward packets.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Network Access:</strong> Frame created with MAC addresses. Transmitted as bits across the physical medium to the next hop.</div></div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`What is DNS and why is it needed? Describe the process of resolving www.example.com to an IP address.`,
+      a:`<div class="ans-block"><strong>DNS (Domain Name System):</strong> Translates human-readable domain names into IP addresses. It is needed because devices communicate using IP addresses, not names.</div><div class="ans-block"><strong>Resolution process:</strong><br>1. PC checks its local DNS cache for a match.<br>2. If not cached, it queries its configured DNS server (e.g. 8.8.8.8).<br>3. DNS server looks up the record; if it doesn't have it, it queries other DNS servers up the hierarchy (root → TLD → authoritative).<br>4. The IP address is returned to the PC and cached for future use.</div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What does DHCP do? What are the FOUR steps in the DHCP process (DORA)?`,
+      a:`<div class="ans-block"><strong>DHCP (Dynamic Host Configuration Protocol):</strong> Automatically assigns IP addresses and other network configuration (subnet mask, default gateway, DNS) to clients — eliminating manual configuration.</div><div class="ans-block"><strong>DORA process:</strong><br>1. <strong>D</strong>iscover — Client broadcasts "Is there a DHCP server?"<br>2. <strong>O</strong>ffer — DHCP server offers an IP address.<br>3. <strong>R</strong>equest — Client requests the offered address.<br>4. <strong>A</strong>cknowledge — Server confirms the lease.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Describe the difference between a unicast, broadcast, and multicast IPv4 address. Give an example of each.`,
+      a:`<div class="ans-block"><strong>Unicast:</strong> Sent to a single specific destination host. Example: 192.168.1.10 — only one device has this address.</div><div class="ans-block"><strong>Broadcast:</strong> Sent to ALL devices on a network/subnet. Example: 192.168.1.255 (directed broadcast) or 255.255.255.255 (limited broadcast — stays on local network).</div><div class="ans-block"><strong>Multicast:</strong> Sent to a selected group of devices that have joined the multicast group. Example: 224.0.0.5 (used by OSPF routers). Range: 224.0.0.0 to 239.255.255.255.</div>`
+    },
+  ]},
+
+  /*── MODULE 4 ─────────────────────────────────────────*/
+  { id:'m4', label:'M4 – Physical Layer', cards:[
+    { diff:'exam', marks:'[2 marks]',
+      q:`Describe attenuation in communication media. How does it affect signal quality and what can be done about it?`,
+      a:`<div class="ans-block"><strong>Attenuation</strong> is the degradation (weakening) of a signal as it travels along a transmission medium. The longer the cable, the weaker the signal.</div><div class="ans-block"><strong>Effect:</strong> The receiving device may not accurately interpret the signal, causing errors or data loss.</div><div class="ans-block"><strong>Solution:</strong> Observe maximum cable length limits (e.g. Cat 5e max 100 m). Use repeaters or signal amplifiers on longer runs.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Compare UTP and STP cabling. When would you choose STP over UTP?`,
+      a:`<div class="ans-block"><strong>UTP:</strong> No metallic shielding. Relies on the twisting of wire pairs to reduce EMI. Cheaper, easier to install — most common in offices.</div><div class="ans-block"><strong>STP:</strong> Has a braided metal shield or foil wrap around the pairs. Better protection against EMI/RFI. More expensive, harder to install, requires grounded connectors.</div><div class="ans-block"><strong>Choose STP when:</strong> deploying in high-interference environments — near industrial machinery, elevators, or fluorescent lighting.</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`State the application/use of each of the following cables:\n(i) Ethernet Straight-through\n(ii) Ethernet Crossover\n(iii) Rollover cable`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">i</div><div><strong>Straight-through:</strong> Connects UNLIKE devices — PC to switch, switch to router. Same wiring standard (T568B) at both ends.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">ii</div><div><strong>Crossover:</strong> Connects LIKE devices — PC to PC, switch to switch, router to router. T568A at one end, T568B at the other.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">iii</div><div><strong>Rollover (Console):</strong> Connects PC to Cisco console port for initial out-of-band management. Pin-reversed wiring.</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`What are the TWO main types of fiber-optic cable? Compare them on core size, light source, distance, and jacket colour.`,
+      a:`<div class="ans-block"><strong>Single-Mode Fiber (SMF):</strong><br>• Core ~9 microns<br>• Uses a LASER<br>• Up to 100 km<br>• Yellow jacket<br>• Long-haul WAN / service providers</div><div class="ans-block"><strong>Multi-Mode Fiber (MMF):</strong><br>• Core ~50–62.5 microns<br>• Uses an LED<br>• Up to ~550 m (at 10 Gbps)<br>• Orange or aqua jacket<br>• LAN / data centres</div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`Explain the difference between bandwidth and throughput. Why is actual throughput always less than the stated bandwidth?`,
+      a:`<div class="ans-block"><strong>Bandwidth:</strong> The theoretical maximum capacity of a link under ideal conditions. A fixed property of the medium, measured in Mbps/Gbps.</div><div class="ans-block"><strong>Throughput:</strong> The actual measured data transfer rate. Always less than bandwidth due to: protocol overhead, latency, congestion, number of users, and hardware limitations. The useful portion (excluding overhead) is called <strong>Goodput</strong>.</div>`
+    },
+    { diff:'medium', marks:'[4 marks]',
+      q:`State TWO limitations of wireless media and describe how each affects the network.`,
+      a:`<div class="ans-block"><strong>1. Interference:</strong> Wireless signals share unlicensed frequency bands with microwaves, cordless phones, and neighbouring Wi-Fi. Interference degrades signal quality, reduces throughput, and causes retransmissions.</div><div class="ans-block"><strong>2. Security:</strong> Wireless signals radiate in all directions — anyone within range can potentially intercept them. This makes eavesdropping and unauthorised access easier, requiring strong encryption (WPA3) to mitigate.</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe the THREE physical layer functions. What standards bodies govern the physical layer?`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Physical Components:</strong> Defines the hardware — NICs, connectors, cables, wireless access points. Everything that physically transmits bits.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Encoding:</strong> Converts bits (0s and 1s) into patterns of signals — electrical pulses, light pulses, or radio waves — that can travel over the medium.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Signalling:</strong> Defines the method used to represent bits on the medium (e.g. voltage change for copper, light pulses for fibre).</div></div><div class="ans-block"><strong>Standards bodies:</strong> ISO, TIA/EIA, ITU-T, ANSI, IEEE.</div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`What are the THREE main cable categories used in modern LANs? State the maximum speed and distance for each.`,
+      a:`<div class="ans-block"><strong>Cat 5e (Enhanced Cat 5):</strong><br>Max speed: 1 Gbps &nbsp;|&nbsp; Max distance: 100 m<br>Most common in older installations.</div><div class="ans-block"><strong>Cat 6:</strong><br>Max speed: 10 Gbps (up to 55 m) / 1 Gbps (to 100 m) &nbsp;|&nbsp; Max distance: 100 m<br>Better crosstalk protection.</div><div class="ans-block"><strong>Cat 6a (Augmented Cat 6):</strong><br>Max speed: 10 Gbps &nbsp;|&nbsp; Max distance: 100 m<br>Full 10 Gbps for complete 100 m run. More shielding, thicker cable.</div>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`Explain the concept of EMI and crosstalk. How does UTP cable reduce crosstalk?`,
+      a:`<div class="ans-block"><strong>EMI (Electromagnetic Interference):</strong> External electrical noise from motors, fluorescent lights, or other cables that corrupts data signals on the cable.</div><div class="ans-block"><strong>Crosstalk:</strong> Electrical interference between adjacent wire pairs within the same cable. Signal from one pair leaks into another.</div><div class="ans-block"><strong>How UTP reduces crosstalk:</strong> By twisting wire pairs together — the <em>cancellation effect</em>. As two wires in a pair carry equal but opposite signals, their electromagnetic fields cancel each other out. Different pairs are twisted at different rates to minimise pair-to-pair crosstalk.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Compare fibre-optic cable and copper cable on FOUR criteria: speed, distance, cost, and immunity to interference.`,
+      a:`<div class="ans-block">
+<strong>Speed:</strong> Fibre supports much higher speeds (100 Gbps+) vs copper (up to ~10 Gbps for Cat 6a).<br>
+<strong>Distance:</strong> Fibre far exceeds copper — SMF can reach 100 km; copper is limited to ~100 m.<br>
+<strong>Cost:</strong> Fibre is more expensive to purchase and install; copper is cheaper and easier to terminate.<br>
+<strong>Interference:</strong> Fibre is completely immune to EMI/RFI (uses light, not electricity). Copper is susceptible to electrical interference and can also act as an antenna.</div>`
+    },
+    { diff:'medium', marks:'[3 marks]',
+      q:`What is the purpose of the RJ-45 connector? Describe the T568B wiring standard pin order.`,
+      a:`<div class="ans-block"><strong>RJ-45:</strong> An 8-position, 8-contact (8P8C) modular connector used to terminate UTP cables for Ethernet networks. It is the standard connector for Cat 5e, Cat 6, and Cat 6a cables.</div><div class="ans-block"><strong>T568B pin order (left to right, tab down):</strong><br>Pin 1: Orange/White &nbsp;|&nbsp; Pin 2: Orange<br>Pin 3: Green/White &nbsp;|&nbsp; Pin 4: Blue<br>Pin 5: Blue/White &nbsp;|&nbsp; Pin 6: Green<br>Pin 7: Brown/White &nbsp;|&nbsp; Pin 8: Brown</div>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`What is a repeater and why is it needed on a network? At what OSI/TCP-IP layer does it operate?`,
+      a:`<div class="ans-block"><strong>Repeater:</strong> A device that regenerates and retransmits a weakened or corrupted signal to extend the transmission distance. It amplifies the signal to overcome attenuation.</div><div class="ans-block"><strong>Why needed:</strong> All transmission media have a maximum cable length — beyond this, attenuation causes signal loss. A repeater placed before this limit extends the total possible run.<br><strong>Layer:</strong> Physical layer (Layer 1) — it operates on raw bits with no awareness of addressing or data content.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Describe THREE types of wireless media used in networking, including the frequency bands and a typical use case.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Wi-Fi (IEEE 802.11):</strong> 2.4 GHz and 5 GHz bands. Used for wireless LAN access in homes, offices, and public hotspots.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Bluetooth (IEEE 802.15):</strong> 2.4 GHz. Short range (up to ~10 m). Used for personal area networks — wireless mice, keyboards, headphones.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>WiMAX (IEEE 802.16):</strong> 2–66 GHz range. Long range — up to 50 km. Used for last-mile broadband internet access in areas without cable/fibre infrastructure.</div></div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What is the difference between a hub and a switch at the physical layer? Why are hubs no longer recommended?`,
+      a:`<div class="ans-block"><strong>Hub (Layer 1):</strong> Repeats all incoming signals out ALL ports — effectively a multi-port repeater. All devices share one collision domain and one bandwidth pool. Creates unnecessary traffic.</div><div class="ans-block"><strong>Switch (Layer 2):</strong> Learns MAC addresses and sends frames only to the correct port. Each port = its own collision domain. Far more efficient.<br><strong>Hubs not recommended</strong> because: every device receives every frame (security risk), collisions are frequent, and bandwidth is wasted. Switches eliminate all these problems.</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`A network cable run is 150 m between two switches. Identify the problem and describe TWO solutions.`,
+      a:`<div class="ans-block"><strong>Problem:</strong> The cable run exceeds the maximum segment length for UTP copper cable (100 m). At 150 m, the signal will experience severe attenuation — data will be lost or corrupted and the link will be unreliable.</div><div class="ans-block"><strong>Solution 1 — Add a switch/repeater at the midpoint:</strong> Place another switch or a repeater at approximately 80–90 m. Each segment stays within the 100 m limit. The switch regenerates the signal fully.</div><div class="ans-block"><strong>Solution 2 — Use fibre-optic cable:</strong> Replace the copper run with a fibre-optic cable. Fibre supports distances far beyond 100 m with no attenuation problems (MMF typically supports 550 m or more).</div>`
+    },
+  ]},
+
+  /*── MODULE 5 ─────────────────────────────────────────*/
+  { id:'m5', label:'M5 – Number Systems', cards:[
+    { diff:'exam', marks:'[4 marks]',
+      q:`Convert the following binary numbers to decimal. SHOW YOUR WORKING.\n(i) 11101000     (ii) 11000101`,
+      a:`<div class="ans-block"><strong>(i) 11101000</strong><br>128+64+32+0+8+0+0+0<br>= 128+64+32+8 = <strong>232</strong></div><div class="ans-block"><strong>(ii) 11000101</strong><br>128+64+0+0+0+4+0+1<br>= 128+64+4+1 = <strong>197</strong></div><em>Method: position values 128|64|32|16|8|4|2|1. Add only where bit = 1.</em>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Convert the following hexadecimal numbers to decimal. SHOW YOUR WORKING.\n(i) DE     (ii) F9`,
+      a:`<div class="ans-block"><strong>(i) DE</strong><br>D=13, E=14<br>(13×16) + (14×1) = 208 + 14 = <strong>222</strong></div><div class="ans-block"><strong>(ii) F9</strong><br>F=15, 9=9<br>(15×16) + (9×1) = 240 + 9 = <strong>249</strong></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Convert the following decimal numbers to binary. SHOW YOUR WORKING.\n(i) 194     (ii) 169`,
+      a:`<div class="ans-block"><strong>(i) 194</strong><br>194≥128→1, rem 66<br>66≥64→1, rem 2<br>2<32→0; 2<16→0; 2<8→0; 2<4→0<br>2≥2→1, rem 0; 0<1→0<br>= <strong>11000010</strong></div><div class="ans-block"><strong>(ii) 169</strong><br>169≥128→1, rem 41<br>41<64→0<br>41≥32→1, rem 9<br>9<16→0; 9≥8→1, rem 1<br>1<4→0; 1<2→0; 1≥1→1<br>= <strong>10101001</strong></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Convert the following decimal numbers to hexadecimal. SHOW YOUR WORKING.\n(i) 203     (ii) 27`,
+      a:`<div class="ans-block"><strong>(i) 203</strong><br>→ Binary: 11001011<br>→ Nibbles: 1100 | 1011<br>→ 1100=12=C, 1011=11=B → <strong>CB</strong></div><div class="ans-block"><strong>(ii) 27</strong><br>→ Binary: 00011011<br>→ Nibbles: 0001 | 1011<br>→ 0001=1, 1011=11=B → <strong>1B</strong></div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`A MAC address reads: 00-1A-2B-3C-4D-5E. Identify the OUI, the vendor-assigned portion, and how many bits each is.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">i</div><div><strong>OUI:</strong> <code>00-1A-2B</code> — first 3 bytes (24 bits). Assigned by IEEE to the manufacturer.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">ii</div><div><strong>Vendor-assigned:</strong> <code>3C-4D-5E</code> — last 3 bytes (24 bits). Assigned uniquely by the manufacturer.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">iii</div><div>Total MAC = <strong>48 bits</strong> &nbsp;|&nbsp; OUI = <strong>24 bits</strong> &nbsp;|&nbsp; Vendor = <strong>24 bits</strong></div></div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`What does the subnet mask 255.255.255.0 mean in binary? For the IP address 192.168.10.50, identify the network and host portions.`,
+      a:`<div class="ans-block"><strong>Binary:</strong> <code>11111111.11111111.11111111.00000000</code><br>The 1s = network portion; the 0s = host portion.</div><div class="ans-block"><strong>For 192.168.10.50:</strong><br>Network = <strong>192.168.10</strong> (first 3 octets)<br>Host = <strong>50</strong> (last octet)</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Convert the following binary numbers to hexadecimal. SHOW YOUR WORKING.\n(i) 10110011    (ii) 11110000`,
+      a:`<div class="ans-block"><strong>(i) 10110011</strong><br>Split into nibbles: 1011 | 0011<br>1011 = 11 = B; 0011 = 3<br>= <strong>B3</strong></div><div class="ans-block"><strong>(ii) 11110000</strong><br>Split: 1111 | 0000<br>1111 = 15 = F; 0000 = 0<br>= <strong>F0</strong></div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`Convert the following hexadecimal values to binary. SHOW YOUR WORKING.\n(i) AC    (ii) 4F`,
+      a:`<div class="ans-block"><strong>(i) AC</strong><br>A=10=1010; C=12=1100<br>= <strong>10101100</strong></div><div class="ans-block"><strong>(ii) 4F</strong><br>4=0100; F=15=1111<br>= <strong>01001111</strong></div><em>Method: convert each hex digit to its 4-bit binary nibble, then join.</em>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`A network has the address 192.168.5.0/24.\n(i) What is the subnet mask in dotted decimal?\n(ii) What is the network address?\n(iii) What is the broadcast address?\n(iv) How many usable host addresses are there?`,
+      a:`<div class="ans-block"><strong>(i) Subnet mask:</strong> 255.255.255.0</div><div class="ans-block"><strong>(ii) Network address:</strong> 192.168.5.0 (first address — all host bits = 0)</div><div class="ans-block"><strong>(iii) Broadcast address:</strong> 192.168.5.255 (last address — all host bits = 1)</div><div class="ans-block"><strong>(iv) Usable hosts:</strong> 2⁸ − 2 = 256 − 2 = <strong>254 hosts</strong><br>(Subtract 2: one for network address, one for broadcast)</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Explain the difference between a public IPv4 address and a private IPv4 address. List the THREE private address ranges.`,
+      a:`<div class="ans-block"><strong>Public IP:</strong> Routable on the internet. Assigned by ISPs and managed by IANA/RIRs. Unique globally — no two devices on the internet have the same public IP.</div><div class="ans-block"><strong>Private IP:</strong> Not routable on the internet. Used within internal networks. Not unique globally — the same private range can be used by millions of organisations simultaneously. Requires NAT to access the internet.</div><div class="ans-block"><strong>Private ranges:</strong><br>• 10.0.0.0 – 10.255.255.255 (/8)<br>• 172.16.0.0 – 172.31.255.255 (/12)<br>• 192.168.0.0 – 192.168.255.255 (/16)</div>`
+    },
+    { diff:'medium', marks:'[4 marks]',
+      q:`Convert the following binary numbers to decimal. SHOW YOUR WORKING.\n(i) 10010110    (ii) 01101100`,
+      a:`<div class="ans-block"><strong>(i) 10010110</strong><br>128+0+0+16+0+4+2+0<br>= 128+16+4+2 = <strong>150</strong></div><div class="ans-block"><strong>(ii) 01101100</strong><br>0+64+32+0+8+4+0+0<br>= 64+32+8+4 = <strong>108</strong></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`What is the loopback address? What is its purpose? What address range is reserved for loopback?`,
+      a:`<div class="ans-block"><strong>Loopback address:</strong> 127.0.0.1 (most commonly used, but the entire range 127.0.0.0/8 is reserved).</div><div class="ans-block"><strong>Purpose:</strong> Used to test the TCP/IP stack of the LOCAL device. When you ping 127.0.0.1, the packet never leaves the machine — it loops back internally. If the ping succeeds, TCP/IP is correctly installed. No physical interface or network is needed.</div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`Convert these decimal values to binary AND hexadecimal. SHOW WORKING.\n(i) 255    (ii) 128`,
+      a:`<div class="ans-block"><strong>(i) 255</strong><br>Binary: 128+64+32+16+8+4+2+1 → all 1s → <strong>11111111</strong><br>Hex: nibbles = 1111|1111 = F|F → <strong>FF</strong></div><div class="ans-block"><strong>(ii) 128</strong><br>Binary: 128+0+0+0+0+0+0+0 → <strong>10000000</strong><br>Hex: nibbles = 1000|0000 = 8|0 → <strong>80</strong></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`What is subnetting and why is it used? Calculate the number of subnets and hosts if you borrow 2 bits from the host portion of a /24 network.`,
+      a:`<div class="ans-block"><strong>Subnetting:</strong> Dividing one large network into smaller sub-networks (subnets). Used to: reduce broadcast traffic, improve security by isolating segments, and make more efficient use of IP address space.</div><div class="ans-block"><strong>Borrowing 2 bits from a /24:</strong><br>New prefix = /26 (255.255.255.192)<br>Number of subnets = 2² = <strong>4 subnets</strong><br>Number of host bits remaining = 6<br>Usable hosts per subnet = 2⁶ − 2 = <strong>62 hosts</strong></div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`What is NAT (Network Address Translation) and why is it used?`,
+      a:`<div class="ans-block"><strong>NAT:</strong> Translates private IP addresses to a public IP address (and vice versa) at the router/firewall boundary. This allows multiple internal devices with private addresses to share one (or a few) public IP addresses when accessing the internet.</div><div class="ans-block"><strong>Why used:</strong><br>1. <strong>IPv4 conservation:</strong> Prevents exhaustion of the limited public IPv4 address space.<br>2. <strong>Security:</strong> Internal devices are hidden behind the public IP — external hosts cannot directly initiate connections to internal hosts.</div>`
+    },
+  ]},
+
+  /*── MODULE 6 ─────────────────────────────────────────*/
+  { id:'m6', label:'M6 – Data Link Layer', cards:[
+    { diff:'exam', marks:'[4 marks]',
+      q:`The Data Link Layer has TWO sublayers. Name them and explain the role of EACH.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,140,200,.2);color:#ff8cc8">1</div><div><strong>LLC (Logical Link Control):</strong> Upper sublayer. Communicates with the Network layer. Identifies which Layer 3 protocol is carried (IPv4/IPv6) and manages flow control and error notification to upper layers.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">2</div><div><strong>MAC (Media Access Control):</strong> Lower sublayer. Responsible for data encapsulation (building frames with MAC addresses), physical addressing, and media access control — determining when a device may transmit (CSMA/CD, CSMA/CA).</div></div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`Describe the CSMA/CD collision detection process step by step.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Listen before transmitting:</strong> Device checks if the medium is idle (carrier sense).</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Collision detected:</strong> If two devices transmit simultaneously, both detect the collision and immediately stop.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Jam signal + backoff:</strong> Both send a jam signal to notify all stations. Each then waits a random backoff time before retransmitting.<br><em>Used by legacy half-duplex wired Ethernet — not needed on modern full-duplex switched networks.</em></div></div>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`Describe the CSMA/CA collision avoidance process. Why is it used for wireless instead of CSMA/CD?`,
+      a:`<div class="ans-block"><strong>CSMA/CA Process:</strong> Before transmitting, a device listens for activity. If idle, it waits an additional random backoff period, then announces the intended transmission duration (via RTS/CTS or DIFS/SIFS). Other devices set timers and wait. Then transmits and waits for ACK.</div><div class="ans-block"><strong>Why not CSMA/CD for wireless?</strong> A wireless device cannot detect a collision while transmitting — its own signal drowns out incoming ones. So collision DETECTION is physically impossible. CSMA/CA instead AVOIDS collisions before they happen.</div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`PC-A sends a frame to PC-D through Router R1. As the frame LEAVES R1, what are the source and destination MAC addresses in the new frame?`,
+      a:`<div class="ans-block"><strong>Source MAC:</strong> R1's outgoing interface MAC (the interface facing PC-D's network).<br><strong>Destination MAC:</strong> PC-D's MAC address.</div><div class="ans-block"><em>Why?</em> At each hop, the router strips the old Layer 2 frame and builds a brand new one. L3 IP addresses remain unchanged end-to-end; L2 MAC addresses change at every hop.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Compare Point-to-Point, Hub-and-Spoke, and Mesh WAN topologies. What is the trade-off of a full mesh?`,
+      a:`<div class="ans-block"><strong>Point-to-Point:</strong> Dedicated link between exactly two endpoints. Simple but does not scale beyond two sites.</div><div class="ans-block"><strong>Hub-and-Spoke:</strong> Central hub connected to multiple spokes. Traffic between spokes goes through the hub — cost-effective but hub is a single point of failure.</div><div class="ans-block"><strong>Full Mesh:</strong> Every node directly connected to every other. Highest redundancy. <strong>Trade-off:</strong> extremely expensive. Links required = n(n−1)/2. Complex to manage at scale.</div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`Why is HDLC the default Layer 2 encapsulation on Cisco serial interfaces? What issue arises connecting Cisco to non-Cisco?`,
+      a:`<div class="ans-block"><strong>HDLC default:</strong> Cisco's HDLC is lightweight, efficient, and well-suited to synchronous serial WAN connections — hence the default.</div><div class="ans-block"><strong>Problem:</strong> Cisco adds a proprietary field to HDLC that other vendors don't support — making it <strong>incompatible with non-Cisco routers</strong>. Solution: change both ends to <strong>PPP</strong> (Point-to-Point Protocol), which is vendor-neutral.</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Identify and describe the THREE steps the Data Link layer performs when encapsulating data into a frame.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Frame delimiting:</strong> The frame is given a header and a trailer that mark where it begins and ends. This allows the receiver to identify frame boundaries in the stream of bits.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Addressing:</strong> The source and destination MAC addresses are added to the frame header so the NIC of the correct device accepts the frame.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Error detection:</strong> A Frame Check Sequence (FCS) value is calculated and added to the trailer. The receiver recalculates FCS and compares — if they differ, the frame is corrupt and discarded.</div></div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`What is the purpose of the FCS (Frame Check Sequence) field in an Ethernet frame? What algorithm is used and what happens if errors are detected?`,
+      a:`<div class="ans-block"><strong>FCS purpose:</strong> To detect errors that may have been introduced during transmission. It provides error detection at the Data Link layer.</div><div class="ans-block"><strong>Algorithm:</strong> CRC (Cyclic Redundancy Check). The sender runs a mathematical calculation on all frame bits and places the result in the FCS field. The receiver performs the same calculation on the received frame and compares the result to the FCS.</div><div class="ans-block"><strong>If errors detected:</strong> The frame is <strong>silently discarded</strong>. The Data Link layer does NOT request retransmission — that responsibility falls to higher-layer protocols (e.g. TCP at the Transport layer).</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`Describe THREE fields in an Ethernet frame and state the purpose of each.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Preamble (7 bytes):</strong> A pattern of alternating 1s and 0s that synchronises the receiver's clock with the sender before data arrives.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Destination MAC (6 bytes):</strong> The physical address of the intended recipient NIC. The switch uses this to decide which port to forward the frame to.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>EtherType (2 bytes):</strong> Identifies the Layer 3 protocol carried in the payload — e.g. 0x0800 = IPv4, 0x86DD = IPv6, 0x0806 = ARP.</div></div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`What is the difference between the MAC address table (CAM table) on a switch and the ARP cache on a PC? What does each map?`,
+      a:`<div class="ans-block"><strong>MAC address table (switch):</strong><br>Maps <strong>MAC address → port number</strong>. The switch learns which MAC address is reachable through which port and stores this. Used to make forwarding decisions at Layer 2.<br>View with: <code>show mac address-table</code></div><div class="ans-block"><strong>ARP cache (PC or router):</strong><br>Maps <strong>IP address → MAC address</strong>. Used by a host to find the MAC address it needs to build a frame for a known IP address.<br>View with: <code>arp -a</code> (Windows) or <code>show arp</code> (Cisco)</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe the frame forwarding decisions a switch can make. Name and explain the THREE actions a switch can take.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Filter (known unicast):</strong> If the destination MAC is in the MAC table AND is on the SAME port the frame arrived on, the switch drops the frame — no need to forward it.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Forward (known unicast to different port):</strong> If the destination MAC is in the MAC table on a DIFFERENT port, the switch forwards the frame only out that specific port.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Flood (unknown unicast / broadcast / multicast):</strong> If the destination MAC is NOT in the MAC table, or if it is a broadcast/multicast address, the switch floods the frame out ALL ports except the incoming port.</div></div>`
+    },
+    { diff:'medium', marks:'[2 marks]',
+      q:`What is the purpose of the STP (Spanning Tree Protocol) on a switched network?`,
+      a:`<div class="ans-block"><strong>STP purpose:</strong> Prevents <strong>switching loops</strong> in a network that has redundant links between switches. Without STP, a broadcast frame would circulate indefinitely around the loop, consuming all bandwidth (broadcast storm).</div><div class="ans-block"><strong>How it works:</strong> STP elects a Root Bridge, then calculates the best loop-free path to the root. Redundant ports are placed in a <em>Blocking</em> state — they receive BPDUs but do not forward frames. If the active link fails, a blocked port transitions to Forwarding, restoring connectivity.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Explain the difference between a collision domain and a broadcast domain. How do switches and routers handle each?`,
+      a:`<div class="ans-block"><strong>Collision domain:</strong> A segment of a network where only ONE device can transmit at a time. If two devices transmit simultaneously, a collision occurs. A switch creates a SEPARATE collision domain per port — eliminating collisions between ports. A hub has ONE collision domain for all connected devices.</div><div class="ans-block"><strong>Broadcast domain:</strong> A segment where a broadcast frame is forwarded to ALL devices. Switches do NOT break broadcast domains — all ports on a switch are in the same broadcast domain (unless VLANs are configured). Routers DO break broadcast domains — broadcasts cannot pass through a router.</div>`
+    },
+    { diff:'exam', marks:'[3 marks]',
+      q:`Describe THREE advantages of using switches over hubs in a modern LAN.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Eliminated collisions:</strong> Each switch port is its own collision domain. Devices on different ports never collide, enabling full-duplex operation.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Dedicated bandwidth:</strong> Each port gets its own dedicated bandwidth — not shared. A 1 Gbps switch gives each device 1 Gbps, whereas a hub shares that bandwidth among all ports.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Intelligent forwarding / Security:</strong> Frames are only sent to the intended recipient port. Other devices do not see the frame, reducing unnecessary traffic and limiting eavesdropping.</div></div>`
+    },
+  ]},
+
+  /*── MODULE 7 ─────────────────────────────────────────*/
+  { id:'m7', label:'M7 – Ethernet Switching', cards:[
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe Store-and-Forward and Cut-Through frame forwarding. State ONE advantage and ONE disadvantage of each.`,
+      a:`<div class="ans-block"><strong>Store-and-Forward:</strong> Receives the ENTIRE frame before forwarding. Runs a CRC error check on the FCS — corrupt frames are discarded.<br>✅ Error-free forwarding; required for QoS.<br>❌ Higher latency.</div><div class="ans-block"><strong>Cut-Through:</strong> Reads ONLY the destination MAC (first 6 bytes) then immediately starts forwarding — before the rest arrives.<br>✅ Lowest possible latency.<br>❌ No error checking — corrupt frames are forwarded.</div>`
+    },
+    { diff:'exam', marks:'[2 marks]',
+      q:`State the TWO variants of cut-through forwarding and explain how they differ.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(99,230,190,.2);color:#63e6be">1</div><div><strong>Fast-Forward:</strong> Forwards immediately after reading the dest MAC (6 bytes). Absolute lowest latency. Zero error checking — even runts are forwarded.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">2</div><div><strong>Fragment-Free:</strong> Reads the first <strong>64 bytes</strong> before forwarding. Catches collision fragments (runts are almost always < 64 bytes). A compromise between speed and basic error filtering.</div></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`MAC table: Port 1=AA:AA, Port 2=BB:BB, Port 3=CC:CC.\nPC-A (AA:AA) sends a frame to PC-C (CC:CC) — what does the switch do?\nPC-A then sends to PC-X (DD:DD) — what does the switch do?`,
+      a:`<div class="ans-block"><strong>To PC-C (CC:CC) — known unicast:</strong><br>Switch looks up CC:CC → found on Port 3 → forwards ONLY out Port 3. Ports 1 and 2 receive nothing. This is called <strong>filtering</strong>.</div><div class="ans-block"><strong>To PC-X (DD:DD) — unknown unicast:</strong><br>DD:DD is NOT in the MAC table → switch <strong>floods</strong> the frame out ALL ports EXCEPT Port 1 (incoming). When PC-X replies, the switch learns DD:DD's port and adds it to the table.</div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`What is a 'runt' Ethernet frame? What causes it and what does a switch do with it?`,
+      a:`<div class="ans-block"><strong>Runt:</strong> An Ethernet frame smaller than the minimum size of <strong>64 bytes</strong>. Not a valid frame.</div><div class="ans-block"><strong>Cause:</strong> Typically caused by collisions on a half-duplex link, or a faulty NIC.</div><div class="ans-block"><strong>Switch action:</strong> Store-and-Forward and Fragment-Free modes discard runts. Fast-Forward mode may forward them.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Compare Port-Based memory buffering and Shared Memory buffering in a switch. Which is better and why?`,
+      a:`<div class="ans-block"><strong>Port-Based:</strong> Each port has its own dedicated queue. Problem: <strong>head-of-line (HOL) blocking</strong> — if the destination port is busy, ALL frames behind that frame wait, even if their destination ports are free.</div><div class="ans-block"><strong>Shared Memory:</strong> All frames go into a single common pool. Any frame can go to any port. Eliminates HOL blocking, supports asymmetric link speeds (e.g. 10 Mbps → 1 Gbps), uses memory more efficiently. <strong>Generally superior</strong> for modern networks.</div>`
+    },
+    { diff:'hard', marks:'[2 marks]',
+      q:`Why does modern full-duplex switched Ethernet NOT require CSMA/CD?`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(99,230,190,.2);color:#63e6be">1</div><div><strong>Separate collision domains:</strong> Each switch port is its own collision domain — devices on different ports cannot collide.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">2</div><div><strong>Full-duplex:</strong> A device can transmit and receive simultaneously on separate wire pairs. No shared medium → no competition → collisions are physically impossible.</div></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe the process by which a switch builds and maintains its MAC address table.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(255,107,107,.2);color:#ff6b6b">1</div><div><strong>Learn:</strong> When a frame arrives, the switch reads the <em>source MAC address</em> and records which port it arrived on — adding "MAC → Port" to the MAC address table.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(255,169,77,.2);color:#ffa94d">2</div><div><strong>Age out:</strong> Each entry has an ageing timer (typically 300 seconds). If no frame is received from that MAC during the timer period, the entry is removed — keeping the table current.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(169,227,75,.2);color:#a9e34b">3</div><div><strong>Update:</strong> If a device moves to a different port, the next frame from that MAC updates the entry to the new port, replacing the old entry.</div></div>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`What is an auto-MDIX feature on a switch? Why does it matter?`,
+      a:`<div class="ans-block"><strong>Auto-MDIX (Automatic Medium-Dependent Interface Crossover):</strong> A feature that automatically detects whether a straight-through or crossover cable is used, and electronically reconfigures the interface to make the connection work regardless of cable type.</div><div class="ans-block"><strong>Why it matters:</strong> Before auto-MDIX, technicians had to carefully choose the correct cable type (straight-through for unlike devices, crossover for like devices). With auto-MDIX, either cable type works — eliminating a common source of connection errors and simplifying installations. Available on most modern Cisco switches.</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Describe the steps a switch takes when it receives a frame destined for a BROADCAST address. What impact does this have on the network?`,
+      a:`<div class="ans-block"><strong>Steps:</strong><br>1. Frame arrives — switch checks the destination MAC.<br>2. Destination MAC = FF:FF:FF:FF:FF:FF (broadcast).<br>3. Switch does NOT look this up in the MAC table — broadcasts are always flooded.<br>4. Switch forwards the frame out <strong>ALL ports except the incoming port</strong>.<br>5. Every device on the switch receives and processes the frame.</div><div class="ans-block"><strong>Network impact:</strong> All devices must interrupt their CPU to process the frame even if the broadcast is not relevant to them. In large networks, high broadcast rates create a <strong>broadcast storm</strong> that degrades performance. VLANs and routers are used to contain broadcast domains.</div>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`What is a VLAN and why is it used? State TWO benefits of implementing VLANs.`,
+      a:`<div class="ans-block"><strong>VLAN (Virtual Local Area Network):</strong> A logical grouping of switch ports that creates separate virtual broadcast domains on the same physical switch — without needing separate physical switches.</div><div class="ans-block"><strong>Benefits:</strong><br>1. <strong>Security:</strong> Devices in different VLANs cannot communicate directly — they are logically isolated. Sensitive departments (e.g. Finance) can be separated from others.<br>2. <strong>Reduced broadcast traffic:</strong> Broadcasts are contained within a VLAN — devices in other VLANs do not receive them, reducing unnecessary CPU interruptions and improving performance.</div>`
+    },
+    { diff:'exam', marks:'[5 marks]',
+      q:`Write the commands to create VLAN 10 named "SALES" and assign port Fa0/1 to it on a Cisco switch.`,
+      a:`<span class="cmd">! Step 1: Create the VLAN and name it
+Switch(config)# vlan 10
+Switch(config-vlan)# name SALES
+Switch(config-vlan)# exit</span><span class="cmd">! Step 2: Assign a port to the VLAN
+Switch(config)# interface fastethernet 0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+Switch(config-if)# end</span><span class="cmd">! Verify
+Switch# show vlan brief</span>`
+    },
+    { diff:'hard', marks:'[3 marks]',
+      q:`What is the difference between an access port and a trunk port on a Cisco switch?`,
+      a:`<div class="ans-block"><strong>Access port:</strong> Belongs to exactly ONE VLAN. Frames entering or leaving an access port are untagged — the end device (PC, printer) has no knowledge of VLANs. Used to connect end-user devices.</div><div class="ans-block"><strong>Trunk port:</strong> Carries traffic from MULTIPLE VLANs on a single link. Uses 802.1Q tagging to identify which VLAN each frame belongs to. Used to connect switches to switches, or switches to routers (router-on-a-stick).</div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`Explain 'router-on-a-stick'. When is it used and what commands configure a subinterface for VLAN 10 on router interface G0/0?`,
+      a:`<div class="ans-block"><strong>Router-on-a-stick:</strong> A technique for inter-VLAN routing using a single physical router interface connected via a trunk link to a switch. The router interface is divided into multiple <em>subinterfaces</em>, each assigned to a VLAN — allowing traffic to be routed between VLANs through the single physical link.</div><div class="ans-block"><strong>Used when:</strong> inter-VLAN communication is needed but no Layer 3 switch is available.</div><span class="cmd">Router(config)# interface g0/0.10
+Router(config-subif)# encapsulation dot1q 10
+Router(config-subif)# ip address 192.168.10.1 255.255.255.0
+Router(config-subif)# end</span>`
+    },
+    { diff:'hard', marks:'[4 marks]',
+      q:`Describe THREE Layer 2 switch security features you can configure to harden a switch.`,
+      a:`<div class="ans-step"><div class="step-num" style="background:rgba(99,230,190,.2);color:#63e6be">1</div><div><strong>Port Security:</strong> Limits the number of MAC addresses allowed on a port. If an unauthorised device connects (unknown MAC), the port can shut down, restrict, or drop traffic. Prevents MAC flooding attacks.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(77,171,247,.2);color:#4dabf7">2</div><div><strong>Disable unused ports:</strong> Administratively shut down all unused switch ports (<code>shutdown</code>). Prevents unauthorised physical access to the network.</div></div><div class="ans-step"><div class="step-num" style="background:rgba(218,119,242,.2);color:#da77f2">3</div><div><strong>DHCP Snooping:</strong> Prevents rogue DHCP servers from assigning incorrect IP configurations. Only designated "trusted" ports can send DHCP offers — all others are untrusted and DHCP server replies from them are dropped.</div></div>`
+    },
+    { diff:'exam', marks:'[4 marks]',
+      q:`What is a MAC flooding attack? How does it work and what is its goal?`,
+      a:`<div class="ans-block"><strong>MAC flooding attack:</strong> An attacker sends thousands of frames with random, spoofed source MAC addresses to a switch. The switch learns all these fake MACs, filling its MAC address table (CAM table) to capacity.</div><div class="ans-block"><strong>Effect:</strong> Once the CAM table is full, the switch can no longer store new, legitimate entries. When a frame arrives for a destination not in the table, the switch floods it out ALL ports — turning the switch into a hub.</div><div class="ans-block"><strong>Goal:</strong> The attacker on one port can now capture traffic destined for ALL other devices — effectively performing a passive eavesdropping attack on the entire VLAN. <strong>Mitigation:</strong> Port security limits MAC addresses per port.</div>`
+    },
+  ]},
+];
+
+/* ══ BUILD "ALL" MODULE ══ */
+const allCards = modules.flatMap(m => m.cards.map(c => ({...c, _mod: m.id, _label: m.label.replace(/M\d – /,'')})));
+const allModule = { id:'all', label:'All Modules', cards: allCards };
+const allModules = [allModule, ...modules];
+
+/* ══ STATE ══ */
+let activeIdx = 0;   // index into allModules
+let deck = [];
+let cardIdx = 0;
+let isFlipped = false;
+
+/* ══ INIT ══ */
+function init() {
+  renderTabs();
+  loadModule(1); // start on M1
+}
+
+function loadModule(i) {
+  activeIdx = i;
+  deck = [...allModules[i].cards];
+  cardIdx = 0;
+  isFlipped = false;
+  renderTabs();
+  renderCard();
+}
+
+/* ══ TABS ══ */
+function renderTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = allModules.map((m, i) => {
+    const active = i === activeIdx;
+    const colorVar = m.id === 'all' ? 'accent' : m.id;
+    const style = active ? `background:var(--${colorVar});border-color:var(--${colorVar});` : '';
+    return `<button class="tab${active?' active':''}" style="${style}" onclick="loadModule(${i})">${m.label}</button>`;
+  }).join('');
+}
+
+/* ══ RENDER CARD ══ */
+function renderCard() {
+  const card = deck[cardIdx];
+  const mod = allModules[activeIdx];
+  const colorId = card._mod || mod.id;
+  const label = card._label || mod.label.replace(/M\d – /,'');
+
+  isFlipped = false;
+
+  // Sync scene colour class
+  const scene = document.getElementById('card-scene');
+  scene.className = 'card-scene'; // reset
+  scene.classList.add('scene-' + colorId);
+  scene.classList.remove('flipped');
+
+  // Trigger entrance animation
+  scene.style.animation = 'none';
+  void scene.offsetWidth;
+  scene.style.animation = '';
+
+  // Front
+  document.getElementById('card-label').textContent = label;
+  document.getElementById('card-marks').textContent = card.marks || '';
+  document.getElementById('card-q').textContent = card.q;
+
+  const db = document.getElementById('card-diff');
+  db.className = 'diff-badge diff-' + (card.diff || 'hard');
+  db.textContent = card.diff === 'exam' ? 'EXAM STYLE' : card.diff === 'medium' ? 'MEDIUM' : 'HARD';
+
+  // Back
+  document.getElementById('card-label-back').textContent = label + ' — Model Answer';
+  document.getElementById('card-a').innerHTML = card.a;
+
+  // Progress
+  const total = deck.length;
+  const pct = Math.round(((cardIdx + 1) / total) * 100);
+  document.getElementById('prog-label').textContent = `Card ${cardIdx+1} of ${total}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-fill').style.background = `var(--${colorId === 'all' ? 'accent' : colorId})`;
+  document.getElementById('card-count').textContent = `${cardIdx+1} / ${total}`;
+
+  // Nav buttons
+  document.getElementById('btn-prev').disabled = cardIdx === 0;
+  document.getElementById('btn-next').disabled = cardIdx === total - 1;
+
+  // Sync back face height to match front after render
+  syncCardHeight();
+}
+
+function syncCardHeight() {
+  requestAnimationFrame(() => {
+    const inner = document.getElementById('card-inner');
+    const front = inner.querySelector('.card-front');
+    const back = inner.querySelector('.card-back');
+
+    // Reset heights
+    front.style.minHeight = '';
+    back.style.minHeight = '';
+
+    // Measure natural heights
+    const fh = front.scrollHeight;
+    // Back is absolute, so measure differently
+    back.style.visibility = 'hidden';
+    back.style.position = 'relative';
+    back.style.transform = 'none';
+    const bh = back.scrollHeight;
+    back.style.position = '';
+    back.style.transform = '';
+    back.style.visibility = '';
+
+    const h = Math.max(300, fh, bh) + 10;
+    front.style.minHeight = h + 'px';
+    back.style.minHeight = h + 'px';
+  });
+}
+
+/* ══ FLIP ══ */
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('card-scene').classList.toggle('flipped', isFlipped);
+}
+
+/* ══ NAVIGATION ══ */
+function nextCard() {
+  if (cardIdx < deck.length - 1) { cardIdx++; renderCard(); }
+}
+function prevCard() {
+  if (cardIdx > 0) { cardIdx--; renderCard(); }
+}
+function shuffleCards() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  cardIdx = 0;
+  renderCard();
+}
+function resetCards() {
+  deck = [...allModules[activeIdx].cards];
+  cardIdx = 0;
+  renderCard();
+}
+
+/* ══ KEYBOARD ══ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextCard();
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevCard();
+  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+});
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
